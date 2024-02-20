@@ -28,8 +28,18 @@ public class ImageCapture : MonoBehaviour
         //photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
         // Create a PhotoCapture object
         //PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
-        StartCoroutine(TakeScreenshotAndSendIt());
-        //Debug.Log("CaptureImage() called");
+        if (Application.platform == RuntimePlatform.WindowsEditor)
+        {
+            Debug.Log("windows editor");
+            StartCoroutine(TakeScreenshotAndSendIt());
+        }
+        else
+        {
+            Debug.Log("If this shows on Hololens, we are in the correct statement");
+            photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
+            // Create a PhotoCapture object
+            PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
+        }
     }
 
     /**
@@ -51,7 +61,6 @@ public class ImageCapture : MonoBehaviour
     {
         Debug.LogError("in OnPhotoCaptureCreated");
         photoCaptureObject = captureObject;
-
         //Resolution cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).Last();
         CameraParameters cameraParameters = new CameraParameters();
         cameraParameters.hologramOpacity = 0.0f;
@@ -86,7 +95,7 @@ public class ImageCapture : MonoBehaviour
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
 
             //// Save the image, here we use a simple method and save to persistentDataPath
-            //StartCoroutine(ShowImage(targetTexture));
+            StartCoroutine(ShowImage(targetTexture));
 
             //StartCoroutine(requestHandler.PuppeteerImageRequest(targetTexture.EncodeToPNG()));
             StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));

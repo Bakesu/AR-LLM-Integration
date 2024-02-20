@@ -6,6 +6,7 @@ using UnityEngine;
 using System;
 using Newtonsoft.Json;
 using UnityEngine.UIElements;
+using Unity.VisualScripting;
 
 public class SpeechInput : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class SpeechInput : MonoBehaviour
 
     ImageCapture imageCapture;
 
+    [SerializeField] GameObject imgInBackground;
 
     internal String dictationResult;
 
@@ -69,6 +71,14 @@ public class SpeechInput : MonoBehaviour
         dictationSubsystem.StopDictation();
         byte[] bytes = ImageConversion.EncodeToPNG(image);
         StartCoroutine(requestHandler.ImageRequest(dictationResult, bytes));
+        //Flip the sprite on the x-axis
+        imgInBackground.GetComponent<SpriteRenderer>().flipX = !imgInBackground.GetComponent<SpriteRenderer>().flipX;
+    }
+
+    public void callTakeImage()
+    {
+        Debug.Log("take image");
+        imageCapture.CaptureImageAndSendIt();
     }
 
     private void Dictation_Recognizing(DictationResultEventArgs args)
