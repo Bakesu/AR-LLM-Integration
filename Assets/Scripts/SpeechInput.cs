@@ -22,7 +22,7 @@ public class SpeechInput : MonoBehaviour
     GameObject promptButton;
 
     [SerializeField]
-    Texture2D image;
+    Texture2D hardcodedImage;
 
     ImageCapture imageCapture;
 
@@ -69,10 +69,10 @@ public class SpeechInput : MonoBehaviour
         dictationResult = args.Result;
         Debug.Log("Sending prompt:" + "'" + dictationResult + "'");
         dictationSubsystem.StopDictation();
-        byte[] bytes = ImageConversion.EncodeToPNG(image);
+        byte[] bytes = ImageConversion.EncodeToPNG(hardcodedImage);
         StartCoroutine(requestHandler.ImageRequest(dictationResult, bytes));
         //Flip the sprite on the x-axis
-        imgInBackground.GetComponent<SpriteRenderer>().flipX = !imgInBackground.GetComponent<SpriteRenderer>().flipX;
+        //imgInBackground.GetComponent<SpriteRenderer>().flipX = !imgInBackground.GetComponent<SpriteRenderer>().flipX;
     }
 
     public void callTakeImage()

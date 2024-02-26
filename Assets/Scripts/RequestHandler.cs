@@ -88,7 +88,8 @@ public class RequestHandler : MonoBehaviour
 
     internal IEnumerator ImageRequest(string textPrompt, byte[] imageAsBytes)
     {
-        var requestBodyAsBytes = CreateImageRequestBody(textPrompt, imageAsBytes);
+        string promptEngineering = textPrompt + "? .Please start the answer with only the correct label \"A\" or \"B\" and only the word \"left\" or \"right\" . wrap these two words in curly brackets and separate the two words with a comma. After the curly brackets, provide the rest of the answer. Maximum use 30 words";
+        var requestBodyAsBytes = CreateImageRequestBody(promptEngineering, imageAsBytes);
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
         uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
@@ -109,9 +110,10 @@ public class RequestHandler : MonoBehaviour
             Debug.Log(uwr.downloadHandler.text);
             string result = uwr.downloadHandler.text;
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
-            Message promptAnswer = resultAsObject.choices[0].message;
+            ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             //messageList.Add(promptAnswer);
-            textMesh.text = promptAnswer.content;
+            Debug.Log("label: " + extractedData.Label + " orientation: " + extractedData.Orientation + " TextContent: " + extractedData.TextContent);
+            textMesh.text = extractedData.TextContent;
         }
     }
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
