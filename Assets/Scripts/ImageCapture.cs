@@ -6,6 +6,7 @@ using UnityEngine.Windows.WebCam;
 using System;
 using System.Collections;
 using GLTFast.Schema;
+using UnityEngine.UIElements;
 
 public class ImageCapture : MonoBehaviour
 {
@@ -125,5 +126,15 @@ public class ImageCapture : MonoBehaviour
         // Shutdown the photo capture resource
         photoCaptureObject.Dispose();
         photoCaptureObject = null;
+    }
+
+    void ApplyGridFilterToImage(Texture2D targetTexture)
+    {
+        Texture2D newTex = new Texture2D(targetTexture.width, targetTexture.height, TextureFormat.ARGB32, false);
+        newTex.SetPixels(targetTexture.GetPixels());
+        //combine textures
+        newTex.Apply();
+        // Apply a grid filter to the image
+        targetTexture.Apply();
     }
 }
