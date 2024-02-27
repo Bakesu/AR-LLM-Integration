@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1103,9 +1103,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f259657faf202c94e9f538a0c59698d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridImage: {fileID: 2800000, guid: a96b9d18d087edc4c97dad8aee80cebb, type: 3}
-  backgroundImage: {fileID: 2800000, guid: 0426dd95c82fe914980b7af6e948a038, type: 3}
-  resultingImage: {fileID: 2800000, guid: cfa00dbb4a121d6499a10c91a28ee052, type: 3}
+  gridImage: {fileID: 2800000, guid: d9691fb6b329ebb4aabd7219f8cc9f82, type: 3}
+  backgroundImage: {fileID: 2800000, guid: 769eb6fedd92e5a4d8194d93abc9289f, type: 3}
   imageObject: {fileID: 1827786609}
 --- !u!4 &1398181242 stripped
 Transform:
@@ -1613,7 +1612,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: bcb725aad0269c449ba72d0d1de2d157, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
