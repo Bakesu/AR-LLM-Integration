@@ -110,8 +110,8 @@ public class RequestHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log(uwr.result);
-            Debug.Log(uwr.downloadHandler.text);
+            //Debug.Log(uwr.result);
+            //Debug.Log(uwr.downloadHandler.text);
             string result = uwr.downloadHandler.text;
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);

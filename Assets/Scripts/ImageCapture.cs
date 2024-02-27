@@ -18,17 +18,14 @@ public class ImageCapture : MonoBehaviour
     [SerializeField]
     public SpeechInput speechInput;
 
-    public void Start()
-    {
-        PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
-    }
+
+    /**
+     * If we are in the editor, take a screenshot and send it, else take a photo and send it
+     */
 
     public void CaptureImageAndSendIt()
     {
-
-        //photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
-        // Create a PhotoCapture object
-        //PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
+        
         if (Application.platform == RuntimePlatform.WindowsEditor)
         {
             Debug.Log("windows editor");
@@ -36,10 +33,10 @@ public class ImageCapture : MonoBehaviour
         }
         else
         {
-            Debug.Log("If this shows on Hololens, we are in the correct statement");
-            photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
+            //Debug.Log("If this shows on Hololens, we are in the correct statement");
             // Create a PhotoCapture object
             PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
+            
         }
     }
 
@@ -51,8 +48,6 @@ public class ImageCapture : MonoBehaviour
         yield return new WaitForEndOfFrame();
         var targetTexture = ScreenCapture.CaptureScreenshotAsTexture();
         StartCoroutine(ShowImage(targetTexture));
-        //StartCoroutine(requestHandler.PuppeteerImageRequest(targetTexture.EncodeToPNG()));
-        //StartCoroutine(requestHandler.ChatGptImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
     }
 
     /**
@@ -60,7 +55,6 @@ public class ImageCapture : MonoBehaviour
      */
     void OnPhotoCaptureCreated(PhotoCapture captureObject)
     {
-        Debug.LogError("in OnPhotoCaptureCreated");
         photoCaptureObject = captureObject;
         //Resolution cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).Last();
         CameraParameters cameraParameters = new CameraParameters();
@@ -77,7 +71,9 @@ public class ImageCapture : MonoBehaviour
     {
         if (result.success)
         {
+            Debug.Log("Camera ready");
             // Take a picture when the camera is ready
+            photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
         }
         else
         {
@@ -91,17 +87,17 @@ public class ImageCapture : MonoBehaviour
         if (result.success)
         {
             // Create a texture and copy the photo capture's result into the texture
-            //Resolution cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
             Texture2D targetTexture = new Texture2D(1920, 1080);
+            Debug.Log("Just before uploading image data to texture");
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
 
-            //// Save the image, here we use a simple method and save to persistentDataPath
-            StartCoroutine(ShowImage(targetTexture));
-
-            //StartCoroutine(requestHandler.PuppeteerImageRequest(targetTexture.EncodeToPNG()));
+            // Save the image, here we use a simple method and save to persistentDataPath
+            // We may want this later for conducting user studies.
+            //string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
+            //File.WriteAllBytes(filePath, imageAsPNG);
+            Debug.Log("Show image, see if it delays the general code or not");
             StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
-
-
+            StartCoroutine(ShowImage(targetTexture));
         }
         else
         {

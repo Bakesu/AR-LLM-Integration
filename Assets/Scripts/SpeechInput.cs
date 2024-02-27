@@ -69,8 +69,7 @@ public class SpeechInput : MonoBehaviour
         dictationResult = args.Result;
         Debug.Log("Sending prompt:" + "'" + dictationResult + "'");
         dictationSubsystem.StopDictation();
-        byte[] bytes = ImageConversion.EncodeToPNG(hardcodedImage);
-        StartCoroutine(requestHandler.ImageRequest(dictationResult, bytes));
+        imageCapture.CaptureImageAndSendIt();
         //Flip the sprite on the x-axis
         //imgInBackground.GetComponent<SpriteRenderer>().flipX = !imgInBackground.GetComponent<SpriteRenderer>().flipX;
     }
