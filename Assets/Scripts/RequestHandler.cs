@@ -24,9 +24,13 @@ public class RequestHandler : MonoBehaviour
     [SerializeField]
     GameObject promptButton;
 
+    [SerializeField]
+    private ObjectHighlighter objectHighlighter;
+
     private DebugWindow debugWindow;
 
     private List<ReqMessage> messageList = new List<ReqMessage>();
+     
 
     private byte[] imageToSend;
 
@@ -112,6 +116,9 @@ public class RequestHandler : MonoBehaviour
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             //messageList.Add(promptAnswer);
+
+            objectHighlighter.OnResponseReceived(extractedData);
+            
             Debug.Log("label: " + extractedData.Label + " orientation: " + extractedData.Orientation + " TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;
         }
