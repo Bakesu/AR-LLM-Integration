@@ -35,11 +35,6 @@ public class ImageMerger : MonoBehaviour
                 {
                     resultingImage.SetPixel(x, y, Color.blue);
                 }
-                else
-                {
-                    resultingImage.SetPixel(x, y, Color.green);
-                    //resultingImage.SetPixel(x, y, backgroundImage.GetPixel(x, y));
-                }
                 
             }
 
