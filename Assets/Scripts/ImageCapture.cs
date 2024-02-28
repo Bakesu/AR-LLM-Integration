@@ -61,7 +61,7 @@ public class ImageCapture : MonoBehaviour
         photoCaptureObject = captureObject;
         //Resolution cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).Last();
         CameraParameters cameraParameters = new CameraParameters();
-        cameraParameters.hologramOpacity = 0.0f;
+        cameraParameters.hologramOpacity = 1.0f;
         cameraParameters.cameraResolutionWidth = 1920;
         cameraParameters.cameraResolutionHeight = 1080;
         cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
