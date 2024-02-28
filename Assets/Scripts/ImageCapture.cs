@@ -48,6 +48,7 @@ public class ImageCapture : MonoBehaviour
         yield return new WaitForEndOfFrame();
         var targetTexture = ScreenCapture.CaptureScreenshotAsTexture();
         StartCoroutine(ShowImage(targetTexture));
+        StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
     }
 
     /**

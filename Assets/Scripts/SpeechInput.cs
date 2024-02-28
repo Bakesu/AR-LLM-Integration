@@ -74,12 +74,6 @@ public class SpeechInput : MonoBehaviour
         //imgInBackground.GetComponent<SpriteRenderer>().flipX = !imgInBackground.GetComponent<SpriteRenderer>().flipX;
     }
 
-    public void callTakeImage()
-    {
-        Debug.Log("take image");
-        imageCapture.CaptureImageAndSendIt();
-    }
-
     private void Dictation_Recognizing(DictationResultEventArgs args)
     {
         i++;
