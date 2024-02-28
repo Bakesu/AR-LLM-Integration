@@ -26,8 +26,6 @@ public class SpeechInput : MonoBehaviour
 
     ImageCapture imageCapture;
 
-    [SerializeField] GameObject imgInBackground;
-
     internal String dictationResult;
 
     private int i = 0;
@@ -69,15 +67,7 @@ public class SpeechInput : MonoBehaviour
         dictationResult = args.Result;
         Debug.Log("Sending prompt:" + "'" + dictationResult + "'");
         dictationSubsystem.StopDictation();
-        imageCapture.CaptureImageAndSendIt();
-        //Flip the sprite on the x-axis
-        //imgInBackground.GetComponent<SpriteRenderer>().flipX = !imgInBackground.GetComponent<SpriteRenderer>().flipX;
-    }
-
-    public void callTakeImage()
-    {
-        Debug.Log("take image");
-        imageCapture.CaptureImageAndSendIt();
+        imageCapture.CaptureImageAndSendIt();        
     }
 
     private void Dictation_Recognizing(DictationResultEventArgs args)

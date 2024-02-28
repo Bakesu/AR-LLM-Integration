@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using GLTFast.Schema;
 using UnityEngine.UIElements;
+using Unity.VisualScripting;
 
 public class ImageCapture : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class ImageCapture : MonoBehaviour
     [SerializeField]
     public SpeechInput speechInput;
 
+    public Texture2D targetTexture;
 
     /**
      * If we are in the editor, take a screenshot and send it, else take a photo and send it
@@ -73,7 +75,15 @@ public class ImageCapture : MonoBehaviour
         {
             Debug.Log("Camera ready");
             // Take a picture when the camera is ready
-            photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
+            try {
+                photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error when taking photo: " + e);
+            }
+            //photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
+            
         }
         else
         {
@@ -83,20 +93,19 @@ public class ImageCapture : MonoBehaviour
 
     void OnCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
     {
-        Debug.LogError("in OnCapturedPhotoToMemory");
+        Debug.Log("Captured photo to memory");
         if (result.success)
         {
             // Create a texture and copy the photo capture's result into the texture
-            Texture2D targetTexture = new Texture2D(1920, 1080);
-            Debug.Log("Just before uploading image data to texture");
+            targetTexture = new Texture2D(1920, 1080);
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
-
-            // Save the image, here we use a simple method and save to persistentDataPath
-            // We may want this later for conducting user studies.
-            //string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
-            //File.WriteAllBytes(filePath, imageAsPNG);
-            Debug.Log("Show image, see if it delays the general code or not");
-            StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
+            var imageAsPNG = targetTexture.EncodeToPNG();
+            //// Save the image, here we use a simple method and save to persistentDataPath
+            //// We may want this later for conducting user studies.
+            ////string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
+            ////File.WriteAllBytes(filePath, imageAsPNG);
+            //Debug.Log("Show image, see if it delays the general code or not");
+            StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, imageAsPNG));
             StartCoroutine(ShowImage(targetTexture));
         }
         else

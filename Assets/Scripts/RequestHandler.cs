@@ -92,15 +92,18 @@ public class RequestHandler : MonoBehaviour
 
     internal IEnumerator ImageRequest(string textPrompt, byte[] imageAsBytes)
     {
+        Debug.Log("Within ImageRequest");
         string promptEngineering = textPrompt + "? .Please start the answer with only the correct label \"A\" or \"B\" and only the word \"left\" or \"right\" . wrap these two words in curly brackets and separate the two words with a comma. After the curly brackets, provide the rest of the answer. Maximum use 30 words";
         var requestBodyAsBytes = CreateImageRequestBody(promptEngineering, imageAsBytes);
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
+        Debug.Log("Setting uwr properties");
         uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
         uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
 
         //Send the request then wait here until it returns
+        Debug.Log("Just before sending the request");
         yield return uwr.SendWebRequest();
 
         if (uwr.result == UnityWebRequest.Result.ConnectionError)
