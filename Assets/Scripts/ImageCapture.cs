@@ -11,23 +11,25 @@ using Unity.VisualScripting;
 
 public class ImageCapture : MonoBehaviour
 {
-    private PhotoCapture photoCaptureObject = null;
-    public GameObject screenshotObject;
     [SerializeField]
-    public RequestHandler requestHandler;
-
+    private GameObject screenshotObject;
     [SerializeField]
-    public SpeechInput speechInput;
+    private RequestHandler requestHandler;
 
-    public Texture2D targetTexture;
+    private PhotoCapture photoCaptureObject;
+    private SpeechInput speechInput;    
+    private ImageMerger imageMerger;
 
-    /**
-     * If we are in the editor, take a screenshot and send it, else take a photo and send it
-     */
+    private Texture2D targetTexture;
 
+    private void Start()
+    {
+        imageMerger = gameObject.GetComponent<ImageMerger>();
+        speechInput = gameObject.GetComponent<SpeechInput>();
+    }
     public void CaptureImageAndSendIt()
     {
-        
+
         if (Application.platform == RuntimePlatform.WindowsEditor)
         {
             Debug.Log("windows editor");
@@ -37,8 +39,8 @@ public class ImageCapture : MonoBehaviour
         {
             //Debug.Log("If this shows on Hololens, we are in the correct statement");
             // Create a PhotoCapture object
-            PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
-            
+            PhotoCapture.CreateAsync(true, OnPhotoCaptureCreated);
+
         }
     }
 
@@ -47,10 +49,12 @@ public class ImageCapture : MonoBehaviour
      */
     IEnumerator TakeScreenshotAndSendIt()
     {
+        Debug.Log("editor only code");
         yield return new WaitForEndOfFrame();
-        var targetTexture = ScreenCapture.CaptureScreenshotAsTexture();
+        targetTexture = new Texture2D(1920, 1080);
+        targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 1f, 1f);
         StartCoroutine(ShowImage(targetTexture));
-        StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
+        //StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
     }
 
     /**
@@ -58,10 +62,9 @@ public class ImageCapture : MonoBehaviour
      */
     void OnPhotoCaptureCreated(PhotoCapture captureObject)
     {
-        photoCaptureObject = captureObject;
-        //Resolution cameraResolution = PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).Last();
+        photoCaptureObject = captureObject;        
         CameraParameters cameraParameters = new CameraParameters();
-        cameraParameters.hologramOpacity = 1.0f;
+        cameraParameters.hologramOpacity = 0.5f;
         cameraParameters.cameraResolutionWidth = 1920;
         cameraParameters.cameraResolutionHeight = 1080;
         cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
@@ -74,9 +77,9 @@ public class ImageCapture : MonoBehaviour
     {
         if (result.success)
         {
-            Debug.Log("Camera ready");
             // Take a picture when the camera is ready
-            try {
+            try
+            {
                 photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
             }
             catch (Exception e)
@@ -84,7 +87,7 @@ public class ImageCapture : MonoBehaviour
                 Debug.LogError("Error when taking photo: " + e);
             }
             //photoCaptureObject.TakePhotoAsync(OnCapturedPhotoToMemory);
-            
+
         }
         else
         {
@@ -94,18 +97,16 @@ public class ImageCapture : MonoBehaviour
 
     void OnCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
     {
-        Debug.Log("Captured photo to memory");
         if (result.success)
         {
             // Create a texture and copy the photo capture's result into the texture
             targetTexture = new Texture2D(1920, 1080);
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
+            targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 0.8f, 0.2f);
             var imageAsPNG = targetTexture.EncodeToPNG();
-            //// Save the image, here we use a simple method and save to persistentDataPath
             //// We may want this later for conducting user studies.
             ////string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
             ////File.WriteAllBytes(filePath, imageAsPNG);
-            //Debug.Log("Show image, see if it delays the general code or not");
             StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, imageAsPNG));
             StartCoroutine(ShowImage(targetTexture));
         }
@@ -119,11 +120,12 @@ public class ImageCapture : MonoBehaviour
     }
 
     private IEnumerator ShowImage(Texture2D target)
-    {     
+    {
         screenshotObject.GetComponent<Renderer>().material.mainTexture = target;
         screenshotObject.gameObject.SetActive(true);
-        yield return new WaitForSeconds(10);
-        screenshotObject.gameObject.SetActive(false);
+        yield return new WaitForSeconds(2);
+        //set to false if we want to hide the image after a few seconds
+        screenshotObject.gameObject.SetActive(true);
     }
 
 
@@ -132,15 +134,5 @@ public class ImageCapture : MonoBehaviour
         // Shutdown the photo capture resource
         photoCaptureObject.Dispose();
         photoCaptureObject = null;
-    }
-
-    void ApplyGridFilterToImage(Texture2D targetTexture)
-    {
-        Texture2D newTex = new Texture2D(targetTexture.width, targetTexture.height, TextureFormat.ARGB32, false);
-        newTex.SetPixels(targetTexture.GetPixels());
-        //combine textures
-        newTex.Apply();
-        // Apply a grid filter to the image
-        targetTexture.Apply();
     }
 }

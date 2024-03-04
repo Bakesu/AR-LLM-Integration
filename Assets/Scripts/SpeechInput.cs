@@ -90,7 +90,7 @@ public class SpeechInput : MonoBehaviour
 
     public void StartDictation()
     {
-        //promptButton.GetComponent<ButtonDisabler>().DisableButton();
+        debugWindow.Clear();
         dictationSubsystem.StartDictation();
         Debug.Log("Start Dictating!");
     }
