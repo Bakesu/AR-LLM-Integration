@@ -5,7 +5,6 @@ using UnityEngine;
 public class ExtractedData
 {
     public string Label { get; set; }
-    public string Orientation { get; set; }
     public string TextContent { get; set; }
 }
 
@@ -21,7 +20,6 @@ public static class Utility
         return new ExtractedData
         {
             Label = responseAsSubstrings?[0],
-            Orientation = responseAsSubstrings?[1],
             TextContent = textcontent
         };
     }

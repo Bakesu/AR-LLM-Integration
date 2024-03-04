@@ -93,7 +93,7 @@ public class RequestHandler : MonoBehaviour
     internal IEnumerator ImageRequest(string textPrompt, byte[] imageAsBytes)
     {
         Debug.Log("Within ImageRequest");
-        string promptEngineering = textPrompt + "? .Please start the answer with the correct label in one or more of the grid cells. Wrap the label in curly brackets. After the curly brackets, provide the rest of the answer. Maximum use 30 words";
+        string promptEngineering = textPrompt + "? .Please start the answer with the correct label of one of the grid cell. Wrap the label in curly brackets. After the curly brackets, provide the rest of the answer. Maximum use 30 words";
         var requestBodyAsBytes = CreateImageRequestBody(promptEngineering, imageAsBytes);
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
         Debug.Log("Setting uwr properties");
@@ -122,7 +122,7 @@ public class RequestHandler : MonoBehaviour
 
             objectHighlighter.OnResponseReceived(extractedData);
             
-            Debug.Log("label: " + extractedData.Label + " orientation: " + extractedData.Orientation + " TextContent: " + extractedData.TextContent);
+            Debug.Log("label: " + extractedData.Label + ", TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;
         }
     }
