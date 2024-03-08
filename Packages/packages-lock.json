@@ -13,7 +13,7 @@
       "url": "https://package.openupm.com"
     },
     "com.microsoft.mixedreality.openxr": {
-      "version": "file:MixedReality/com.microsoft.mixedreality.openxr-1.9.0.tgz",
+      "version": "file:MixedReality/com.microsoft.mixedreality.openxr-1.10.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
@@ -24,7 +24,7 @@
       }
     },
     "com.microsoft.mrtk.graphicstools.unity": {
-      "version": "file:MixedReality/com.microsoft.mrtk.graphicstools.unity-0.6.2.tgz",
+      "version": "file:MixedReality/com.microsoft.mrtk.graphicstools.unity-0.6.7.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {}
@@ -303,7 +303,7 @@
       }
     },
     "org.mixedrealitytoolkit.core": {
-      "version": "file:MixedReality/org.mixedrealitytoolkit.core-3.0.0.tgz",
+      "version": "file:MixedReality/org.mixedrealitytoolkit.core-3.1.1.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
@@ -370,12 +370,12 @@
       }
     },
     "org.mixedrealitytoolkit.uxcomponents": {
-      "version": "file:MixedReality/org.mixedrealitytoolkit.uxcomponents-3.0.0.tgz",
+      "version": "file:MixedReality/org.mixedrealitytoolkit.uxcomponents-3.1.1.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
         "com.microsoft.mrtk.graphicstools.unity": "0.5.12",
-        "org.mixedrealitytoolkit.uxcore": "3.0.0",
+        "org.mixedrealitytoolkit.uxcore": "3.1.0",
         "org.mixedrealitytoolkit.spatialmanipulation": "3.0.0",
         "org.mixedrealitytoolkit.standardassets": "3.0.0",
         "com.unity.xr.interaction.toolkit": "2.3.0"
@@ -392,12 +392,12 @@
       }
     },
     "org.mixedrealitytoolkit.uxcore": {
-      "version": "file:MixedReality/org.mixedrealitytoolkit.uxcore-3.0.0.tgz",
+      "version": "file:MixedReality/org.mixedrealitytoolkit.uxcore-3.1.1.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
         "com.microsoft.mrtk.graphicstools.unity": "0.5.12",
-        "org.mixedrealitytoolkit.core": "3.0.0",
+        "org.mixedrealitytoolkit.core": "3.1.0",
         "com.unity.inputsystem": "1.6.1",
         "com.unity.textmeshpro": "3.0.6",
         "com.unity.xr.interaction.toolkit": "2.3.0"
