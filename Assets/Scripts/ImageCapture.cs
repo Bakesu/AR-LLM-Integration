@@ -16,7 +16,7 @@ public class ImageCapture : MonoBehaviour
     [SerializeField]
     private RequestHandler requestHandler;
 
-    private PhotoCapture photoCaptureObject;
+    internal PhotoCapture photoCaptureObject;
     private SpeechInput speechInput;    
     private ImageMerger imageMerger;
 
@@ -102,11 +102,13 @@ public class ImageCapture : MonoBehaviour
             // Create a texture and copy the photo capture's result into the texture
             targetTexture = new Texture2D(1920, 1080);
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
-            targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 0.8f, 0.2f);
+            targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 0.5f, 0.1f);
             var imageAsPNG = targetTexture.EncodeToPNG();
-            //// We may want this later for conducting user studies.
-            ////string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
-            ////File.WriteAllBytes(filePath, imageAsPNG);
+            
+            //Use the device portal to get the image from the hololens. 
+            string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
+            File.WriteAllBytes(filePath, imageAsPNG);
+
             StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, imageAsPNG));
             StartCoroutine(ShowImage(targetTexture));
         }

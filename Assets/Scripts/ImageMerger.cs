@@ -36,12 +36,12 @@ public class ImageMerger : MonoBehaviour
                 else
                 {
                     Color interpolatedColor = Color.Lerp(targetImage.GetPixel(x, y), currentGridPixel, whiteBackgroundOpacity);
-                    targetImage.SetPixel(x, y, interpolatedColor);
+                    var grayscalePixel = new Color(0.299f * interpolatedColor.r, 0.587f * interpolatedColor.g, 0.114f * interpolatedColor.b, whiteBackgroundOpacity);
+                    targetImage.SetPixel(x, y, grayscalePixel);
                 }
             }
 
         }
-        Debug.Log("done");
         targetImage.Apply();
         return targetImage;
     }

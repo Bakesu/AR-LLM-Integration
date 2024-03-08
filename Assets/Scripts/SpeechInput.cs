@@ -7,6 +7,7 @@ using System;
 using Newtonsoft.Json;
 using UnityEngine.UIElements;
 using Unity.VisualScripting;
+using UnityEngine.Assertions.Must;
 
 public class SpeechInput : MonoBehaviour
 {
@@ -67,6 +68,13 @@ public class SpeechInput : MonoBehaviour
         dictationResult = args.Result;
         Debug.Log("Sending prompt:" + "'" + dictationResult + "'");
         dictationSubsystem.StopDictation();
+        //If photocapture is set, we want to pull it down before creating a new one
+        if(imageCapture.photoCaptureObject != null)
+        {
+            Debug.Log("Disposing of old photoCaptureObject");
+            imageCapture.photoCaptureObject.Dispose();
+            imageCapture.photoCaptureObject = null;
+        }
         imageCapture.CaptureImageAndSendIt();        
     }
 

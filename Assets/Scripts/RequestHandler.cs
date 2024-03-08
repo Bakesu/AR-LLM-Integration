@@ -33,6 +33,7 @@ public class RequestHandler : MonoBehaviour
      
 
     private byte[] imageToSend;
+    private int maximumContextLength = 10;
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
@@ -92,18 +93,25 @@ public class RequestHandler : MonoBehaviour
 
     internal IEnumerator ImageRequest(string textPrompt, byte[] imageAsBytes)
     {
-        Debug.Log("Within ImageRequest");
-        string promptEngineering = textPrompt + "? .Please start the answer with the correct label of one of the grid cell. Wrap the label in curly brackets. After the curly brackets, provide the rest of the answer. Maximum use 30 words";
+        string promptEngineering =
+            "You will be asked to identify, locate or describe objects in the provided image." +
+            "\r\nThe image will contain a grid in blue (RGB value 0, 0, 255), " +
+            "with each grid cell containing a label in red text (RGB value 255, 0, 0). " +
+            "If an object is clipping between multiple grid cells, please provide " +
+            "all the labels of all grid cells you deem to contain the object." +
+            "\r\nYour answer should be twofold." +
+            "\r\nFor the first section, please begin your answer with the label(s) of the grid cell(s) " +
+            "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
+            "please answer the questions using a maximum of 30 words and without mentioning the grid or labels." +
+            "\r\n ''' " + textPrompt + "? '''";
         var requestBodyAsBytes = CreateImageRequestBody(promptEngineering, imageAsBytes);
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
-        Debug.Log("Setting uwr properties");
         uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
         uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
-
+        Debug.Log("Image saved to: " + Application.persistentDataPath);
         //Send the request then wait here until it returns
-        Debug.Log("Just before sending the request");
         yield return uwr.SendWebRequest();
 
         if (uwr.result == UnityWebRequest.Result.ConnectionError)
@@ -113,8 +121,6 @@ public class RequestHandler : MonoBehaviour
         }
         else
         {
-            //Debug.Log(uwr.result);
-            //Debug.Log(uwr.downloadHandler.text);
             string result = uwr.downloadHandler.text;
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
@@ -125,6 +131,8 @@ public class RequestHandler : MonoBehaviour
             Debug.Log("label: " + extractedData.Label + ", TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;
         }
+
+
     }
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
     {
