@@ -30,7 +30,7 @@ public class RequestHandler : MonoBehaviour
     private DebugWindow debugWindow;
 
     private List<ReqMessage> messageList = new List<ReqMessage>();
-     
+
 
     private byte[] imageToSend;
     private int maximumContextLength = 10;
@@ -50,6 +50,21 @@ public class RequestHandler : MonoBehaviour
         {
             return true; // Always accept
         };
+
+        string promptEngineering =
+            "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
+            "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
+            "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
+            "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
+            "The labels are written in bold red letters and numbers and encased in a blue square." +
+            "\r\n If you consider an object as clipping between multiple labels please provide all those labels" +
+            "\r\n Your answer should be twofold." +
+            "\r\n For the first section, please begin your answer with the label(s) of the grid cell(s) " +
+            "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
+            "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
+
+        messageList.Add(new ReqMessage("user", new List<IContent> { new TextContent(promptEngineering) }));
+
     }
     internal string CreateAPIRequestBody(string textPrompt)
     {
@@ -93,24 +108,13 @@ public class RequestHandler : MonoBehaviour
 
     internal IEnumerator ImageRequest(string textPrompt, byte[] imageAsBytes)
     {
-        string promptEngineering =
-            "You will be asked to identify, locate or describe objects in the provided image." +
-            "\r\nThe image will contain a grid in blue (RGB value 0, 0, 255), " +
-            "with each grid cell containing a label in red text (RGB value 255, 0, 0). " +
-            "If an object is clipping between multiple grid cells, please provide " +
-            "all the labels of all grid cells you deem to contain the object." +
-            "\r\nYour answer should be twofold." +
-            "\r\nFor the first section, please begin your answer with the label(s) of the grid cell(s) " +
-            "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
-            "please answer the questions using a maximum of 30 words and without mentioning the grid or labels." +
-            "\r\n ''' " + textPrompt + "? '''";
-        var requestBodyAsBytes = CreateImageRequestBody(promptEngineering, imageAsBytes);
+        var requestBodyAsBytes = CreateImageRequestBody(textPrompt, imageAsBytes);
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
         uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
-        uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
-        Debug.Log("Image saved to: " + Application.persistentDataPath);
+        uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);        
+
         //Send the request then wait here until it returns
         yield return uwr.SendWebRequest();
 
@@ -124,16 +128,15 @@ public class RequestHandler : MonoBehaviour
             string result = uwr.downloadHandler.text;
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
-            //messageList.Add(promptAnswer);
+            //messageList.Add(result);
 
             objectHighlighter.OnResponseReceived(extractedData);
-            
+
             Debug.Log("label: " + extractedData.Label + ", TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;
         }
-
-
     }
+
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
     {
         string imageAsBase64 = "data:image/png;base64," + Convert.ToBase64String(imageAsBytes);
