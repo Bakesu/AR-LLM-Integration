@@ -1,14 +1,15 @@
 {
-  "scopedRegistries": [
-    {
-      "name": "OpenUPM",
-      "url": "https://package.openupm.com",
-      "scopes": [
-        "com.atteneder"
-      ]
-    }
-  ],
-  "dependencies": {
+    "scopedRegistries": [
+        {
+            "name": "OpenUPM",
+            "url": "https://package.openupm.com",
+            "scopes": [
+                "com.atteneder"
+            ]
+        }
+    ],
+    "dependencies": {
+    "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-10.21.3.tgz",
     "com.atteneder.gltfast": "6.2.0",
     "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.10.0.tgz",
     "com.microsoft.mrtk.graphicstools.unity": "file:MixedReality/com.microsoft.mrtk.graphicstools.unity-0.6.7.tgz",

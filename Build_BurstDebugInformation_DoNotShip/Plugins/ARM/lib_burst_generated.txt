@@ -41,6 +41,7 @@ Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\ARM\lib_bur
 --assembly-defines=Unity.Mathematics;
 --assembly-defines=Unity.TextMeshPro;
 --assembly-defines=Unity.XR.ARFoundation;
+--assembly-defines=Unity.XR.ARFoundation.InternalUtils;
 --assembly-defines=Unity.XR.ARSubsystems;
 --assembly-defines=Unity.XR.CoreUtils;
 --assembly-defines=Unity.XR.Interaction.Toolkit;
@@ -52,6 +53,9 @@ Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\ARM\lib_bur
 --assembly-defines=Unity.XR.OpenXR.Features.OculusQuestSupport;
 --assembly-defines=Unity.XR.OpenXR.Features.RuntimeDebugger;
 --assembly-defines=UnityEngine;
+--assembly-defines=Vuforia.Unity.Engine;
+--assembly-defines=Vuforia.Unity.Wrapper;
+--assembly-defines=VuforiaScripts;
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\Projects\uni\AR-LLM-Integration\Temp\Burst
 --key-folder=D:/Program Files/Unity/Hub/Editor/2022.3.10f1/Editor/Data/PlaybackEngines/MetroSupport
