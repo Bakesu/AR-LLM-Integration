@@ -14,8 +14,9 @@ using Chat;
 using ChatAndImage;
 using MixedReality.Toolkit.Subsystems;
 using MixedReality.Toolkit;
+using System.Linq;
 
-public class RequestHandler : MonoBehaviour
+public class RequestHandler : MonoBehaviour, MessageInterface
 {
 
     [SerializeField]
@@ -29,15 +30,14 @@ public class RequestHandler : MonoBehaviour
 
     private DebugWindow debugWindow;
 
-    private List<ReqMessage> messageList = new List<ReqMessage>();
+    private List<MessageInterface> messageList = new List<MessageInterface>();
 
-
+    private ChatAndImageReqDTO chatAndImageReqDTO;
+    private int maximumContextLength = 2;
     private byte[] imageToSend;
-    private int maximumContextLength = 10;
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
-
 
     public void Start()
     {
@@ -51,7 +51,7 @@ public class RequestHandler : MonoBehaviour
             return true; // Always accept
         };
 
-        string promptEngineering =
+        string rulesPrompt =
             "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
             "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
             "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
@@ -62,22 +62,22 @@ public class RequestHandler : MonoBehaviour
             "\r\n For the first section, please begin your answer with the label(s) of the grid cell(s) " +
             "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
             "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
-
-        messageList.Add(new ReqMessage("user", new List<IContent> { new TextContent(promptEngineering) }));
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));             
 
     }
-    internal string CreateAPIRequestBody(string textPrompt)
-    {
-        var chatReqDTO = new ChatReqDTO();
-        chatReqDTO.model = "gpt-3.5-turbo";
-        chatReqDTO.temperature = 0.7;
-        var message = new Message();
-        message.role = "user";
-        message.content = textPrompt;
-        //messageList.Add(message);
-        //chatReqDTO.messages = messageList;
-        return JsonConvert.SerializeObject(chatReqDTO);
-    }
+
+    //internal string CreateAPIRequestBody(string textPrompt)
+    //{
+    //    var chatReqDTO = new ChatReqDTO();
+    //    chatReqDTO.model = "gpt-3.5-turbo";
+    //    chatReqDTO.temperature = 0.7;
+    //    var message = new Message();
+    //    message.role = "user";
+    //    message.content = textPrompt;
+    //    //messageList.Add(message);
+    //    //chatReqDTO.messages = messageList;
+    //    return JsonConvert.SerializeObject(chatReqDTO);
+    //}
 
     internal IEnumerator PromptRequest(string url, string json)
     {
@@ -128,7 +128,7 @@ public class RequestHandler : MonoBehaviour
             string result = uwr.downloadHandler.text;
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
-            //messageList.Add(result);
+            messageList.Add(new Message("assistant", extractedData.TextContent));
 
             objectHighlighter.OnResponseReceived(extractedData);
 
@@ -148,17 +148,12 @@ public class RequestHandler : MonoBehaviour
 
         messageList.Add(new ReqMessage("user", contentList));
 
-        //var messageList = new List<ReqMessage>
-        //{
-        //    new ReqMessage("user", contentList)
-        //};
-
-        var chatAndImageReqDTO = new ChatAndImageReqDTO("gpt-4-vision-preview", 50, messageList);
+        chatAndImageReqDTO = new ChatAndImageReqDTO("gpt-4-vision-preview", 50, messageList);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
         Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
-}
+
 
 public class ForceAcceptAll : CertificateHandler
 {
@@ -166,5 +161,6 @@ public class ForceAcceptAll : CertificateHandler
     {
         return true;
     }
+}
 }
 

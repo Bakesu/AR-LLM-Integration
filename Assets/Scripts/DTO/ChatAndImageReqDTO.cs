@@ -1,4 +1,5 @@
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+using System;
 using System.Collections.Generic;
 
 namespace ChatAndImage
@@ -8,9 +9,9 @@ namespace ChatAndImage
         public string model { get; set; }
 
         public int max_tokens { get; set; }
-        public List<ReqMessage> messages { get; set; }
+        public List<MessageInterface> messages { get; set; }
 
-        public ChatAndImageReqDTO(string model, int max_tokens, List<ReqMessage> messages)
+        public ChatAndImageReqDTO(string model, int max_tokens, List<MessageInterface> messages)
         {
             this.model = model;
             this.max_tokens = max_tokens;
@@ -18,7 +19,7 @@ namespace ChatAndImage
         }
     }
 
-    public class ReqMessage
+    public class ReqMessage : MessageInterface
     {
         public string role { get; set; }
         public List<IContent> content { get; set; }

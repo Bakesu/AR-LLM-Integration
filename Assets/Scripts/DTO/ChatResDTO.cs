@@ -1,4 +1,5 @@
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+using ChatAndImage;
 using System;
 using System.Collections.Generic;
 
@@ -25,10 +26,16 @@ namespace Chat
     }
 
     [Serializable]
-    public class Message
+    public class Message : MessageInterface
     {
         public string role;
         public string content;
+
+        public Message(string role, string content)
+        {
+            this.role = role;
+            this.content = content;
+        }
     }
 
     [Serializable]
