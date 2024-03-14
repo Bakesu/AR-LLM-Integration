@@ -6851,7 +6851,7 @@ PrefabInstance:
     - target: {fileID: 7922148448950530248, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
       propertyPath: hardcodedImage
       value: 
-      objectReference: {fileID: 2800000, guid: a542cc8e268d24348acbb9ea0ca958d5, type: 3}
+      objectReference: {fileID: 2800000, guid: 058f6956c997cd2499338649185b06a5, type: 3}
     - target: {fileID: 7922148448950530248, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
       propertyPath: requestHandler
       value: 
