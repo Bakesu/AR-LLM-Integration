@@ -6,15 +6,13 @@ using System.Net.Security;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
-using System.Buffers.Text;
 using Chat;
 using ChatAndImage;
 using MixedReality.Toolkit.Subsystems;
+
 using MixedReality.Toolkit;
-using System.Linq;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
@@ -57,10 +55,10 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
             "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
             "The labels are written in bold red letters and numbers and encased in a blue square." +
-            "\r\n If you consider an object as clipping between multiple labels please provide all those labels" +
+            //"\r\n If you consider an object as clipping between multiple labels please provide all those labels" +
             "\r\n Your answer should be twofold." +
-            "\r\n For the first section, please begin your answer with the label(s) of the grid cell(s) " +
-            "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
+            "\r\n For the first section, please begin your answer with the label of the grid cell " +
+            "and wrap the label in curly brackets. For the second section, after the curly brackets, " +
             "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
         messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));             
 
@@ -126,11 +124,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         else
         {
             string result = uwr.downloadHandler.text;
+            Debug.Log(result);
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
-            objectHighlighter.OnResponseReceived(extractedData);
+            objectHighlighter.HighlightLabel(extractedData.Label);
 
             Debug.Log("label: " + extractedData.Label + ", TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;

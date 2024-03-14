@@ -77,7 +77,7 @@ public class SpeechInput : MonoBehaviour
         }
 
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.ImageRequest(dictationResult, imageAsPNG);
+        StartCoroutine(requestHandler.ImageRequest(dictationResult, imageAsPNG));
         
         //imageCapture.CaptureImageAndSendIt();        
     }
