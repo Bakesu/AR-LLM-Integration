@@ -19,7 +19,7 @@ public static class Utility
         
         return new ExtractedData
         {
-            Label = responseAsSubstrings?[0],
+            Label = responseAsSubstrings?[0].Trim(),
             TextContent = textcontent
         };
     }

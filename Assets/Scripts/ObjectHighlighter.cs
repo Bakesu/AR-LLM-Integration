@@ -6,6 +6,12 @@ using Vuforia;
 public class ObjectHighlighter : MonoBehaviour
 {
     public Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
+
+    [SerializeField]
+    public Material transparentMaterial;
+    [SerializeField]
+    public Material highlightMaterial;
+
     void Start()
     {
         foreach (Transform child in transform)
@@ -20,6 +26,6 @@ public class ObjectHighlighter : MonoBehaviour
         GameObject highlightObject = GameObject.Find(labelName);
 
         if (highlightObject == null) return;
-        highlightObject.SetActive(true);
+        highlightObject.GetComponent<MeshRenderer>().material = highlightMaterial;
     }
 }
