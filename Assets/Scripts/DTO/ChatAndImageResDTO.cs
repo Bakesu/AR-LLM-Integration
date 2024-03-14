@@ -24,7 +24,7 @@ namespace ChatAndImage
     //    public string content { get; set; }
     //}
 
-    public class ChatAndImageResDTO: MessageInterface
+    public class ChatAndImageResDTO
     {
         public string id { get; set; }
         public string @object { get; set; }
