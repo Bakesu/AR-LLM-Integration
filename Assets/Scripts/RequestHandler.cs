@@ -61,7 +61,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             "and wrap the label in curly brackets. For the second section, after the curly brackets, " +
             "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
         messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));             
-
+        Debug.Log(messageList.Count);        
     }
 
     //internal string CreateAPIRequestBody(string textPrompt)
@@ -111,8 +111,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
-        uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);        
-
+        uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
         //Send the request then wait here until it returns
         yield return uwr.SendWebRequest();
 
@@ -126,6 +125,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             string result = uwr.downloadHandler.text;
             Debug.Log(result);
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
+            Debug.Log(resultAsObject.ToString());
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
@@ -144,12 +144,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             new TextContent(textPrompt),
             new ImageContent(imageAsBase64, "low")
         };
-
+        Debug.Log("add message");
         messageList.Add(new ReqMessage("user", contentList));
-
+        Debug.Log(contentList.Count);
         chatAndImageReqDTO = new ChatAndImageReqDTO("gpt-4-vision-preview", 50, messageList);
+        Debug.Log(chatAndImageReqDTO);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
-        Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
 
