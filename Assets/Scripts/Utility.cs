@@ -17,9 +17,11 @@ public static class Utility
         List<string> labels;
         try
         {
-            textcontent = response.Split("}")[1].TrimStart('.').TrimStart();
+            var responseSplitted = response.Split("}");
+            var labelsString = responseSplitted[0];
+            textcontent = responseSplitted[1].TrimStart('.').TrimStart();
             char[] separators = new char[] { '{', '}', ','};
-            string[] responseAsSubstrings = response.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            string[] responseAsSubstrings = labelsString.Split(separators, StringSplitOptions.RemoveEmptyEntries);
             labels = new List<string>(responseAsSubstrings);
 
         } catch (Exception e)

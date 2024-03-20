@@ -23,14 +23,17 @@ public class ObjectHighlighter : MonoBehaviour
             imageTargets.Add(targetName, child.gameObject);
         }
     }
-    public void HighlightLabel(string labelName)
+    public void HighlightLabels(List<string> labelNames)
     {
-        if (labelName == null) return;
-        GameObject highlightObject = GameObject.Find(labelName);
+        if (labelNames == null) return;
+        foreach (var labelName in labelNames)
+        {
+            GameObject highlightObject = GameObject.Find(labelName);
 
-        if (highlightObject == null) return;
-        highlightObject.GetComponent<MeshRenderer>().material = highlightMaterial;
-        highlightedObjects.Add(highlightObject);
+            if (highlightObject == null) continue;
+            highlightObject.GetComponent<MeshRenderer>().material = highlightMaterial;
+            highlightedObjects.Add(highlightObject);
+        }
     }
 
     public void ClearLabelHighlights()

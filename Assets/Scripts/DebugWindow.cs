@@ -9,7 +9,6 @@ public class DebugWindow : MonoBehaviour
     void Start()
     {
         textMesh = gameObject.GetComponent<TextMeshProUGUI>();
-        Debug.Log("TEST");
     }
 
     void OnEnable()

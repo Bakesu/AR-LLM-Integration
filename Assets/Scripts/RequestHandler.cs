@@ -53,13 +53,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
             "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
             "The labels are written in bold red letters and numbers and encased in a blue square." +
-            "\r\n If you consider an object as clipping between multiple labels please provide all those labels" +
+            "\r\n If you consider the requested area as clipping between multiple labels or covers multiple labels please provide all those labels" +
             "\r\n Your answer should be twofold." +
             "\r\n For the first section, please begin your answer with the label(s) of the grid cell " +
-            "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
+            "and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, after the curly brackets, " +
             "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));             
-        Debug.Log(messageList.Count);        
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));                
     }
 
     internal IEnumerator PromptRequest(string url, string json)
@@ -113,7 +112,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
-            objectHighlighter.HighlightLabel(extractedData.Label);
+            objectHighlighter.HighlightLabels(extractedData.Label);
 
             Debug.Log("label: " + extractedData.Label + ", TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;

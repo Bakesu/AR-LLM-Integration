@@ -105,11 +105,11 @@ public class SpeechInput : MonoBehaviour
     public void StartDictation()
     {
         debugWindow.Clear();
-        objectHighlighter.ClearLabelHighlights();
-        dictationSubsystem.StartDictation();
-        Debug.Log("Start Dictating!");
-        //var imageAsPNG = hardcodedImage.EncodeToPNG();
-        //StartCoroutine(requestHandler.ImageRequest("On the motherboard, where should the CPU be placed?", imageAsPNG));
+        //objectHighlighter.ClearLabelHighlights();
+        //dictationSubsystem.StartDictation();
+        //Debug.Log("Start Dictating!");
+        var imageAsPNG = hardcodedImage.EncodeToPNG();
+        StartCoroutine(requestHandler.ImageRequest("On the motherboard, where should the RAM sticks be placed?", imageAsPNG));
     }
 
 
