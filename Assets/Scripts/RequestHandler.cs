@@ -31,8 +31,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private List<MessageInterface> messageList = new List<MessageInterface>();
 
     private ChatAndImageReqDTO chatAndImageReqDTO;
-    private int maximumContextLength = 2;
-    private byte[] imageToSend;
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
@@ -55,27 +53,14 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
             "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
             "The labels are written in bold red letters and numbers and encased in a blue square." +
-            //"\r\n If you consider an object as clipping between multiple labels please provide all those labels" +
+            "\r\n If you consider an object as clipping between multiple labels please provide all those labels" +
             "\r\n Your answer should be twofold." +
-            "\r\n For the first section, please begin your answer with the label of the grid cell " +
-            "and wrap the label in curly brackets. For the second section, after the curly brackets, " +
+            "\r\n For the first section, please begin your answer with the label(s) of the grid cell " +
+            "and wrap the label(s) in curly brackets. For the second section, after the curly brackets, " +
             "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
         messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));             
         Debug.Log(messageList.Count);        
     }
-
-    //internal string CreateAPIRequestBody(string textPrompt)
-    //{
-    //    var chatReqDTO = new ChatReqDTO();
-    //    chatReqDTO.model = "gpt-3.5-turbo";
-    //    chatReqDTO.temperature = 0.7;
-    //    var message = new Message();
-    //    message.role = "user";
-    //    message.content = textPrompt;
-    //    //messageList.Add(message);
-    //    //chatReqDTO.messages = messageList;
-    //    return JsonConvert.SerializeObject(chatReqDTO);
-    //}
 
     internal IEnumerator PromptRequest(string url, string json)
     {
@@ -125,7 +110,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             string result = uwr.downloadHandler.text;
             Debug.Log(result);
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
-            Debug.Log(resultAsObject.ToString());
             ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
@@ -144,11 +128,8 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             new TextContent(textPrompt),
             new ImageContent(imageAsBase64, "low")
         };
-        Debug.Log("add message");
         messageList.Add(new ReqMessage("user", contentList));
-        Debug.Log(contentList.Count);
         chatAndImageReqDTO = new ChatAndImageReqDTO("gpt-4-vision-preview", 50, messageList);
-        Debug.Log(chatAndImageReqDTO);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }

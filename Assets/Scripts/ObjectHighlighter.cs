@@ -5,12 +5,15 @@ using Vuforia;
 
 public class ObjectHighlighter : MonoBehaviour
 {
-    public Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
 
     [SerializeField]
     public Material transparentMaterial;
     [SerializeField]
     public Material highlightMaterial;
+
+    private Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
+
+    private List<GameObject> highlightedObjects = new List<GameObject>();
 
     void Start()
     {
@@ -27,5 +30,15 @@ public class ObjectHighlighter : MonoBehaviour
 
         if (highlightObject == null) return;
         highlightObject.GetComponent<MeshRenderer>().material = highlightMaterial;
+        highlightedObjects.Add(highlightObject);
+    }
+
+    public void ClearLabelHighlights()
+    {
+        foreach (var highlightedObject in highlightedObjects)
+        {
+            highlightedObject.GetComponent<MeshRenderer>().material = transparentMaterial;
+        }
+        highlightedObjects.Clear();
     }
 }
