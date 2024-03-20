@@ -9,7 +9,7 @@ public class ExtractedData
     public string TextContent { get; set; }
 }
 
-public static class Utility
+public static class DataUtility
 {
     public static ExtractedData extractDataFromResponse(string response)
     {
@@ -26,7 +26,7 @@ public static class Utility
 
         } catch (Exception e)
         {
-            Debug.Log("No label was given");
+            Debug.Log("No label was given " + e);
             textcontent = response;
             labels = null;
         }

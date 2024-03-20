@@ -13,6 +13,7 @@ using ChatAndImage;
 using MixedReality.Toolkit.Subsystems;
 
 using MixedReality.Toolkit;
+using System.Linq;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
@@ -46,19 +47,44 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         {
             return true; // Always accept
         };
+        StartCoroutine(SetupGPT());
+    }
 
-        string rulesPrompt =
-            "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
-            "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
-            "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
-            "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
-            "The labels are written in bold red letters and numbers and encased in a blue square." +
-            "\r\n If you consider the requested area as clipping between multiple labels or covers multiple labels please provide all those labels" +
-            "\r\n Your answer should be twofold." +
-            "\r\n For the first section, please begin your answer with the label(s) of the grid cell " +
-            "and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, after the curly brackets, " +
-            "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(rulesPrompt) }));                
+    private IEnumerator SetupGPT()
+    {
+        yield return new WaitForSeconds(1);
+        string sceneComponentList = CreateComponentList();
+
+        string systemPrompt =
+        "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
+        "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
+        "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
+        "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
+        "The labels are written in bold red letters and numbers and encased in a blue square." +
+        "\r\n If you consider the requested area as clipping between multiple labels or covers multiple labels please provide all those labels" +
+        "\r\n Your answer should be twofold." +
+        "\r\n For the first section, please begin your answer with the label(s) of the grid cell " +
+        "and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label." +
+        "For the second section, after the curly brackets, " +
+
+        "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(systemPrompt) }));
+
+        Debug.Log(sceneComponentList);              
+    }
+
+    private string CreateComponentList()
+    {
+        var sceneObjectList = "[";
+        foreach (var qrObjectPair in objectHighlighter.imageTargets)
+        {
+            string listAppend = qrObjectPair.Key + ", ";
+            sceneObjectList = string.Concat(sceneObjectList, listAppend);
+        }
+        char[] charsToTrim = { ',', ' ' };
+        sceneObjectList = sceneObjectList.TrimEnd(charsToTrim);
+        sceneObjectList = string.Concat(sceneObjectList, "]");
+        return sceneObjectList;
     }
 
     internal IEnumerator PromptRequest(string url, string json)
@@ -109,7 +135,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             string result = uwr.downloadHandler.text;
             Debug.Log(result);
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
-            ExtractedData extractedData = Utility.extractDataFromResponse(resultAsObject.choices[0].message.content);
+            ExtractedData extractedData = DataUtility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
             objectHighlighter.HighlightLabels(extractedData.Label);
@@ -134,12 +160,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     }
 
 
-public class ForceAcceptAll : CertificateHandler
-{
-    protected override bool ValidateCertificate(byte[] certificateData)
+    public class ForceAcceptAll : CertificateHandler
     {
-        return true;
+        protected override bool ValidateCertificate(byte[] certificateData)
+        {
+            return true;
+        }
     }
-}
 }
 
