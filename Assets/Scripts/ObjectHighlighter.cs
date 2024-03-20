@@ -11,7 +11,7 @@ public class ObjectHighlighter : MonoBehaviour
     [SerializeField]
     public Material highlightMaterial;
 
-    private Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
+    internal Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
 
     private List<GameObject> highlightedObjects = new List<GameObject>();
 
@@ -21,8 +21,9 @@ public class ObjectHighlighter : MonoBehaviour
         {
             string targetName = child.GetComponent<ImageTargetBehaviour>().TargetName;
             imageTargets.Add(targetName, child.gameObject);
-        }
+        }        
     }
+
     public void HighlightLabel(string labelName)
     {
         if (labelName == null) return;

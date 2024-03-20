@@ -1105,7 +1105,7 @@ MonoBehaviour:
   PreviewVisible: 1
   RuntimeOcclusion: 0
   RuntimeCollider: 0
-  mTrackableName: CPU
+  mTrackableName: x2
   mInitializedInEditor: 1
   mDataSetPath: 
   mAspectRatio: 1
@@ -1131,7 +1131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mObserverBehaviour: {fileID: 223974230}
   mHiddenRoot: {fileID: 0}
-  mTargetName: CPU
+  mTargetName: x2
   mDatasetName: 
   mCastedBehaviour: {fileID: 223974230}
   mMeshFilter: {fileID: 0}
@@ -4710,7 +4710,7 @@ MonoBehaviour:
   PreviewVisible: 1
   RuntimeOcclusion: 0
   RuntimeCollider: 0
-  mTrackableName: MB
+  mTrackableName: x1
   mInitializedInEditor: 1
   mDataSetPath: 
   mAspectRatio: 1
@@ -4736,7 +4736,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mObserverBehaviour: {fileID: 973779396}
   mHiddenRoot: {fileID: 0}
-  mTargetName: MB
+  mTargetName: x1
   mDatasetName: 
   mCastedBehaviour: {fileID: 973779396}
   mMeshFilter: {fileID: 0}
