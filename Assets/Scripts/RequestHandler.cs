@@ -140,7 +140,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
             objectHighlighter.HighlightLabels(extractedData.Label);
 
-            Debug.Log("label: " + extractedData.Label + ", TextContent: " + extractedData.TextContent);
+            Debug.Log("label: " + String.Join(", ", extractedData.Label) + " + TextContent: " + extractedData.TextContent);
             textMesh.text = extractedData.TextContent;
         }
     }

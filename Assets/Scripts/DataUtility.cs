@@ -23,6 +23,10 @@ public static class DataUtility
             char[] separators = new char[] { '{', '}', ','};
             string[] responseAsSubstrings = labelsString.Split(separators, StringSplitOptions.RemoveEmptyEntries);
             labels = new List<string>(responseAsSubstrings);
+            for (int i = 0; i < labels.Count; i++)
+            {
+                labels[i] = labels[i].Trim();
+            }
 
         } catch (Exception e)
         {
