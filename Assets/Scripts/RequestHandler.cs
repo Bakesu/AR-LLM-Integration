@@ -78,7 +78,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         var sceneObjectList = "[";
         foreach (var qrObjectPair in objectHighlighter.imageTargets)
         {
-            string listAppend = qrObjectPair.Key + ", ";
+            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
             sceneObjectList = string.Concat(sceneObjectList, listAppend);
         }
         char[] charsToTrim = { ',', ' ' };

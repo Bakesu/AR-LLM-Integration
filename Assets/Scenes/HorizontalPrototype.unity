@@ -1243,7 +1243,7 @@ GameObject:
   - component: {fileID: 223974229}
   - component: {fileID: 223974231}
   m_Layer: 0
-  m_Name: CPU Image Target
+  m_Name: CPU
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5156,7 +5156,7 @@ GameObject:
   - component: {fileID: 973779395}
   - component: {fileID: 973779397}
   m_Layer: 0
-  m_Name: MB Image Target
+  m_Name: Motherboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
