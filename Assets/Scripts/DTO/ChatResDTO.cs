@@ -2,6 +2,7 @@
 using ChatAndImage;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Chat
 {
@@ -30,13 +31,29 @@ namespace Chat
     {
         public string role;
         public string content;
+        public List<Tool> tool_calls;
 
-        public Message(string role, string content)
+        public Message(string role, string content, [Optional] List<Tool> tool_calls)
         {
             this.role = role;
             this.content = content;
+            this.tool_calls = tool_calls;
         }
     }
+    public class Tool
+    {
+        public string id { get; set; }
+        public string type { get; set; }
+        public Function function { get; set; }
+    }
+
+
+    public class Function
+    {
+        public string name { get; set; }
+        public string arguments { get; set; }
+    }
+
 
     [Serializable]
     public class Usage
