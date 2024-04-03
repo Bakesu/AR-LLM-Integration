@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ExtractedData
@@ -40,5 +41,12 @@ public static class DataUtility
             Label = labels,
             TextContent = textcontent
         };
+    }
+
+    internal static string StringManip(string stringToTrim)
+    {
+        var tempString = stringToTrim.Split(':');
+        char[] charsToTrim = { '"', '{','}' };     
+        return tempString[1].Trim(charsToTrim);
     }
 }

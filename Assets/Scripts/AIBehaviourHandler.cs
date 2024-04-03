@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -12,7 +13,8 @@ public class AIBehaviourHandler : MonoBehaviour
     internal string sceneComponentList;
     public void highlight_objects(string componentName)
     {
-        Debug.Log(componentName);
+        componentName = DataUtility.StringManip(componentName);
+        
         if(objectHighlighter.imageTargets.ContainsKey(componentName))
         {            
             objectHighlighter.highlightObject(componentName);
@@ -24,6 +26,8 @@ public class AIBehaviourHandler : MonoBehaviour
         //string[] labels = parameters.Split(',');
         //objectHighlighter.highlightObject();
     }
+
+    
 
     //Creates component list based on the children of the objectHighlighter Gameobject
     internal string CreateComponentList()

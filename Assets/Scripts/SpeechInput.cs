@@ -109,7 +109,7 @@ public class SpeechInput : MonoBehaviour
         //dictationSubsystem.StartDictation();
         //Debug.Log("Start Dictating!");
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.CreateFunctionCallRequest("Where is the CPU?");
+        requestHandler.CreateFunctionCallRequest("Where is the Motherboard?");
     }
 
 
