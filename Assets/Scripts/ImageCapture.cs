@@ -109,7 +109,7 @@ public class ImageCapture : MonoBehaviour
             string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
             File.WriteAllBytes(filePath, imageAsPNG);
 
-            StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, imageAsPNG));
+            StartCoroutine(requestHandler.CreateGPTRequest(speechInput.dictationResult, imageAsPNG));
             StartCoroutine(ShowImage(targetTexture));
         }
         else

@@ -14,6 +14,7 @@ using MixedReality.Toolkit.Subsystems;
 
 using MixedReality.Toolkit;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
@@ -27,11 +28,15 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     [SerializeField]
     private ObjectHighlighter objectHighlighter;
 
+    private float temperature = 0.5f;
+    private static object[] tools;
+    private byte[] requestBodyAsBytes;
+
     private DebugWindow debugWindow;
 
     private List<MessageInterface> messageList = new List<MessageInterface>();
 
-    private ChatAndImageReqDTO chatAndImageReqDTO;
+    private RequestDTO chatAndImageReqDTO;
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
@@ -47,6 +52,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         {
             return true; // Always accept
         };
+        CreateTools();
         StartCoroutine(SetupGPT());
     }
 
@@ -55,7 +61,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         yield return new WaitForSeconds(1);
         string sceneComponentList = CreateComponentList();
 
-        string systemPrompt =
+        string labelSystemPrompt =
         "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
         "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
         "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
@@ -68,11 +74,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         "For the second section, after the curly brackets, " +
 
         "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(systemPrompt) }));
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(labelSystemPrompt) }));
 
-        Debug.Log(sceneComponentList);              
+        Debug.Log(sceneComponentList);
     }
 
+    //Creates component list based on the children of the objectHighlighter Gameobject
     private string CreateComponentList()
     {
         var sceneObjectList = "[";
@@ -112,11 +119,20 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             //messageList.Add(chatDTO.choices[0].message);
             textMesh.text = chatDTO.choices[0].message.content;
         }
-    }
-
-    internal IEnumerator ImageRequest(string textPrompt, byte[] imageAsBytes)
+    }    
+    internal IEnumerator CreateGPTRequest(string textPrompt, [Optional] byte[] imageAsBytes)
     {
-        var requestBodyAsBytes = CreateImageRequestBody(textPrompt, imageAsBytes);
+        if(imageAsBytes == null)
+        {
+            Debug.Log("No image was provided");
+            requestBodyAsBytes = CreateFunctionCallRequestBody(textPrompt);
+        }
+        else
+        {
+            Debug.Log("Image was provided");
+            requestBodyAsBytes = CreateImageRequestBody(textPrompt, imageAsBytes);
+
+        }
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
         uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
@@ -133,15 +149,22 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         else
         {
             string result = uwr.downloadHandler.text;
-            Debug.Log(result);
+            Debug.Log(result);            
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = DataUtility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
             objectHighlighter.HighlightLabels(extractedData.Label);
-
-            Debug.Log("label: " + String.Join(", ", extractedData.Label) + " + TextContent: " + extractedData.TextContent);
-            textMesh.text = extractedData.TextContent;
+            try
+            {
+                objectHighlighter.HighlightLabels(extractedData.Label);
+                Debug.Log("label: " + String.Join(", ", extractedData.Label) + " + TextContent: " + extractedData.TextContent);
+                textMesh.text = extractedData.TextContent;
+            } catch (Exception e)
+            {
+                Debug.Log("No labels were given " + e);
+            }
+            
         }
     }
 
@@ -150,15 +173,61 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         string imageAsBase64 = "data:image/png;base64," + Convert.ToBase64String(imageAsBytes);
         var contentList = new List<IContent>
         {
-            new TextContent(textPrompt),
+            new TextContent(textPrompt),            
             new ImageContent(imageAsBase64, "low")
         };
+        //TODO figure out what to do with image requests in messageList - image requests would break requests from the other type of body
         messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new ChatAndImageReqDTO("gpt-4-vision-preview", 50, messageList);
+        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
 
+    private byte[] CreateFunctionCallRequestBody(string textPrompt)
+    {
+        var contentList = new List<IContent>
+        {
+            new TextContent(textPrompt)
+        };
+        messageList.Add(new ReqMessage("user", contentList));
+        chatAndImageReqDTO = new RequestDTO("gpt-4-turbo-preview", 50, temperature, messageList, tools);
+        var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
+        Debug.Log(requestBodyAsJSONString);
+        return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
+    }
+
+    static object[] CreateTools()
+    {
+        tools = new object[]
+        {
+            new {
+            type = "function",
+            function = new
+            {                
+                name = "highlight_objects",
+                description =  "Highlight the objects that the user mentions in their prompt",
+                parameters = new {
+                    type = "object",
+                    properties = new {
+                        highlighted_object = new {
+                        type = "string",
+                        objectList = new [] {
+                            "x1",
+                            "x2",
+                            "x3"
+                        },
+                        description = "The value corresponding to keys in the users prompt"
+                }
+                },
+                    required = new[]
+                    {
+                        "highlighted_object"
+                    }
+                }
+            }}
+        };
+        return tools;
+    }
 
     public class ForceAcceptAll : CertificateHandler
     {

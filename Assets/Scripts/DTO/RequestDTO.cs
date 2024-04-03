@@ -1,21 +1,28 @@
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace ChatAndImage
 {
-    public class ChatAndImageReqDTO
+    public class RequestDTO
     {
         public string model { get; set; }
 
         public int max_tokens { get; set; }
+
+        public float temperature { get; set; }
         public List<MessageInterface> messages { get; set; }
 
-        public ChatAndImageReqDTO(string model, int max_tokens, List<MessageInterface> messages)
+        public object[] tools { get; set; }
+
+        public RequestDTO(string model, int max_tokens, float modelTemperature, List<MessageInterface> messages, [Optional] object[] tools)
         {
             this.model = model;
             this.max_tokens = max_tokens;
+            this.temperature = modelTemperature;
             this.messages = messages;
+            this.tools = tools;
         }
     }
 

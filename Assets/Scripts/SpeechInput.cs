@@ -79,7 +79,7 @@ public class SpeechInput : MonoBehaviour
             imageCapture.photoCaptureObject = null;
         }
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        StartCoroutine(requestHandler.ImageRequest(dictationResult, imageAsPNG));
+        StartCoroutine(requestHandler.CreateGPTRequest(dictationResult, imageAsPNG));
         
         //imageCapture.CaptureImageAndSendIt();        
     }
@@ -109,7 +109,7 @@ public class SpeechInput : MonoBehaviour
         //dictationSubsystem.StartDictation();
         //Debug.Log("Start Dictating!");
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        StartCoroutine(requestHandler.ImageRequest("On the motherboard, where should the RAM sticks be placed?", imageAsPNG));
+        StartCoroutine(requestHandler.CreateGPTRequest("Where is the CPU?"));
     }
 
 
