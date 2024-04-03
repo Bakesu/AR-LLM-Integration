@@ -30,7 +30,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
     private float temperature = 0.5f;
     private static object[] tools;
-    private byte[] requestBodyAsBytes;
 
     private DebugWindow debugWindow;
 
@@ -94,47 +93,22 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         return sceneObjectList;
     }
 
-    internal IEnumerator PromptRequest(string url, string json)
+    internal void CreateFunctionCallRequest(string textPrompt)
     {
+        byte[] requestBody = CreateFunctionCallRequestBody(textPrompt);
+        StartCoroutine(CreateGPTRequest(requestBody));
+    }
 
-        var uwr = new UnityWebRequest(url, "POST");
-        byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
-        uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
-        uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-        uwr.SetRequestHeader("Content-Type", "application/json");
-        uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
-
-        //Send the request then wait here until it returns
-        yield return uwr.SendWebRequest();
-
-        if (uwr.result == UnityWebRequest.Result.ConnectionError)
-        {
-
-            Debug.Log("Error While Sending: " + uwr.error);
-        }
-        else
-        {
-            var text = uwr.downloadHandler.text;
-            ChatResDTO chatDTO = JsonConvert.DeserializeObject<ChatResDTO>(text);
-            //messageList.Add(chatDTO.choices[0].message);
-            textMesh.text = chatDTO.choices[0].message.content;
-        }
-    }    
-    internal IEnumerator CreateGPTRequest(string textPrompt, [Optional] byte[] imageAsBytes)
+    internal void CreateImageRequest(string textPrompt, byte[] imageAsBytes)
     {
-        if(imageAsBytes == null)
-        {
-            Debug.Log("No image was provided");
-            requestBodyAsBytes = CreateFunctionCallRequestBody(textPrompt);
-        }
-        else
-        {
-            Debug.Log("Image was provided");
-            requestBodyAsBytes = CreateImageRequestBody(textPrompt, imageAsBytes);
+        byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes);
+        StartCoroutine(CreateGPTRequest(requestBody));
+    }
 
-        }
+    internal IEnumerator CreateGPTRequest(byte[] requestBody)
+    {
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
-        uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBodyAsBytes);
+        uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBody);
         uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
         uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
@@ -143,13 +117,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
         if (uwr.result == UnityWebRequest.Result.ConnectionError)
         {
-
             Debug.Log("Error While Sending: " + uwr.error);
         }
         else
         {
             string result = uwr.downloadHandler.text;
-            Debug.Log(result);            
+            Debug.Log(result);
             ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
             ExtractedData extractedData = DataUtility.extractDataFromResponse(resultAsObject.choices[0].message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
@@ -160,11 +133,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 objectHighlighter.HighlightLabels(extractedData.Label);
                 Debug.Log("label: " + String.Join(", ", extractedData.Label) + " + TextContent: " + extractedData.TextContent);
                 textMesh.text = extractedData.TextContent;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Debug.Log("No labels were given " + e);
             }
-            
+
         }
     }
 
@@ -173,10 +147,10 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         string imageAsBase64 = "data:image/png;base64," + Convert.ToBase64String(imageAsBytes);
         var contentList = new List<IContent>
         {
-            new TextContent(textPrompt),            
+            new TextContent(textPrompt),
             new ImageContent(imageAsBase64, "low")
         };
-        //TODO figure out what to do with image requests in messageList - image requests would break requests from the other type of body
+        //TODO: figure out what to do with image requests in messageList - image requests would break requests from the other type of body
         messageList.Add(new ReqMessage("user", contentList));
         chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
@@ -203,7 +177,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             new {
             type = "function",
             function = new
-            {                
+            {
                 name = "highlight_objects",
                 description =  "Highlight the objects that the user mentions in their prompt",
                 parameters = new {
@@ -224,7 +198,44 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                         "highlighted_object"
                     }
                 }
-            }}
+            }
+            },
+            new {
+                type = "function",
+                function = new
+                {
+                    name = "capture_image",
+                    description = "Capture an image from the point of view of the user to provide context for the assistant"
+                }
+            },
+            new {
+                type = "function",
+                function = new
+                {
+                    name = "textual_answer",
+                    description = "Provide a textual answer to the user's question",
+                    parameters = new {
+                        type = "object",
+                        properties = new {
+                            answer = new {
+                                type = "string",
+                                description = "The answer of the user's question"
+                            }
+                        },
+                        required = new[] {
+                            "answer"
+                        }
+                    }
+                }
+            },
+            new {
+                type = "function",
+                function = new
+                {
+                    name = "get_label_image",
+                    description = "When the user asks about a location on the motherboard, the assistant will request an image of the motherboard"
+                }
+            }
         };
         return tools;
     }
@@ -236,5 +247,32 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             return true;
         }
     }
+
+    //internal IEnumerator PromptRequest(string url, string json)
+    //{
+
+    //    var uwr = new UnityWebRequest(url, "POST");
+    //    byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
+    //    uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
+    //    uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+    //    uwr.SetRequestHeader("Content-Type", "application/json");
+    //    uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
+
+    //    //Send the request then wait here until it returns
+    //    yield return uwr.SendWebRequest();
+
+    //    if (uwr.result == UnityWebRequest.Result.ConnectionError)
+    //    {
+
+    //        Debug.Log("Error While Sending: " + uwr.error);
+    //    }
+    //    else
+    //    {
+    //        var text = uwr.downloadHandler.text;
+    //        ChatResDTO chatDTO = JsonConvert.DeserializeObject<ChatResDTO>(text);
+    //        //messageList.Add(chatDTO.choices[0].message);
+    //        textMesh.text = chatDTO.choices[0].message.content;
+    //    }
+    //}    
 }
 
