@@ -1940,6 +1940,10 @@ PrefabInstance:
       propertyPath: objectHighlighter
       value: 
       objectReference: {fileID: 853749325}
+    - target: {fileID: 7544758226182721469, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
+      propertyPath: aiBehaviourHandler
+      value: 
+      objectReference: {fileID: 1844227303}
     - target: {fileID: 7930832904600384818, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.20923187
@@ -2684,16 +2688,16 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 556282413}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: 0.1518, y: 0, z: -0.04930005}
+  m_LocalScale: {x: 0.017, y: 0.009444445, z: 0.02077778}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1743462669}
   - {fileID: 2077731399}
   - {fileID: 1035447753}
   - {fileID: 62893091}
-  m_Father: {fileID: 914659797}
+  m_Father: {fileID: 973779394}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &564587734
 GameObject:
@@ -4687,7 +4691,6 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1465535135}
-  - {fileID: 556282414}
   m_Father: {fileID: 973779394}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!64 &914659798
@@ -5287,6 +5290,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 556282414}
   - {fileID: 914659797}
   m_Father: {fileID: 853749324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10322,7 +10326,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2bbbabc06f0848479fdd8188e2aa553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cube: {fileID: 928205525}
+  objectHighlighter: {fileID: 853749325}
 --- !u!1 &1869731890
 GameObject:
   m_ObjectHideFlags: 0

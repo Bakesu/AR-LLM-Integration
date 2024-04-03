@@ -29,7 +29,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private ObjectHighlighter objectHighlighter;
 
     [SerializeField]
-    private AIController aiController;
+    private AIBehaviourHandler aiBehaviourHandler;
 
     private float temperature = 0.5f;
     private static object[] tools;
@@ -42,6 +42,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
+    internal string sceneComponentList;
 
     public void Start()
     {
@@ -61,7 +62,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private IEnumerator SetupGPT()
     {
         yield return new WaitForSeconds(1);
-        string sceneComponentList = CreateComponentList();
+        sceneComponentList = aiBehaviourHandler.CreateComponentList();
 
         string labelSystemPrompt =
         "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
@@ -90,20 +91,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         Debug.Log(sceneComponentList);
     }
 
-    //Creates component list based on the children of the objectHighlighter Gameobject
-    private string CreateComponentList()
-    {
-        var sceneObjectList = "[";
-        foreach (var qrObjectPair in objectHighlighter.imageTargets)
-        {
-            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
-            sceneObjectList = string.Concat(sceneObjectList, listAppend);
-        }
-        char[] charsToTrim = { ',', ' ' };
-        sceneObjectList = sceneObjectList.TrimEnd(charsToTrim);
-        sceneObjectList = string.Concat(sceneObjectList, "]");
-        return sceneObjectList;
-    }
+
 
     internal void CreateFunctionCallRequest(string textPrompt)
     {
@@ -137,15 +125,12 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             Debug.Log(result);
             ChatResDTO resultAsObject = JsonConvert.DeserializeObject<ChatResDTO>(result);
             ExtractedData extractedData = DataUtility.extractDataFromResponse(resultAsObject.choices[0].message.content);
-            Debug.Log(resultAsObject.choices[0].message.tool_calls[0].function.name);
-            Debug.Log(resultAsObject.choices[0].message.tool_calls[0].function.arguments);
             if (resultAsObject.choices[0].message.tool_calls.Count > 0)
             {
                 var callList = resultAsObject.choices[0].message.tool_calls;
-                foreach (var tool_call in callList)
-                {
-                    
-                    aiController.GetType().GetMethod(tool_call.function.name).Invoke(aiController, new object[] { tool_call.function.arguments });
+                foreach (var toolCall in callList)
+                {                    
+                    aiBehaviourHandler.GetType().GetMethod(toolCall.function.name).Invoke(aiBehaviourHandler, new object[] { toolCall.function.arguments });
                 }
             }
             messageList.Add(new Message("assistant", extractedData.TextContent));
@@ -213,7 +198,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                     parameters = new {
                         type = "object",
                         properties = new {
-                            highlighted_object = new {
+                            componentName = new {
                             type = "string",
                             objectList = new [] {
                                 "x1",
@@ -225,7 +210,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                     },
                         required = new[]
                         {
-                            "highlighted_object"
+                            "componentName"
                         }
                     }
                 }
