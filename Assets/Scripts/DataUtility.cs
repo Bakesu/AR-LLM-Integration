@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ExtractedData
+public class LabelExtractedData
 {
     public List<string> Label { get; set; }
     public string TextContent { get; set; }
@@ -11,7 +11,7 @@ public class ExtractedData
 
 public static class DataUtility
 {
-    public static ExtractedData extractDataFromResponse(string response)
+    public static LabelExtractedData extractDataFromResponse(string response)
     {
         string textcontent = "";
         List<string> labels;
@@ -35,7 +35,7 @@ public static class DataUtility
             labels = null;
         }
         
-        return new ExtractedData
+        return new LabelExtractedData
         {
             Label = labels,
             TextContent = textcontent

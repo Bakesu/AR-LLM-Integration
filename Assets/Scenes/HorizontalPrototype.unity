@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1937,9 +1937,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2800000, guid: a542cc8e268d24348acbb9ea0ca958d5, type: 3}
     - target: {fileID: 7544758226182721469, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
+      propertyPath: promptAnswerText
+      value: 
+      objectReference: {fileID: 2123552186}
+    - target: {fileID: 7544758226182721469, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
       propertyPath: objectHighlighter
       value: 
       objectReference: {fileID: 853749325}
+    - target: {fileID: 7544758226182721469, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
+      propertyPath: aiBehaviourHandler
+      value: 
+      objectReference: {fileID: 1844227303}
     - target: {fileID: 7930832904600384818, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.20923187
@@ -10322,7 +10330,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2bbbabc06f0848479fdd8188e2aa553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cube: {fileID: 928205525}
+  objectHighlighter: {fileID: 853749325}
+  promptAnswerText: {fileID: 2123552186}
 --- !u!1 &1869731890
 GameObject:
   m_ObjectHideFlags: 0
