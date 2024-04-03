@@ -66,8 +66,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private IEnumerator SetupGPT()
     {
         yield return new WaitForSeconds(1);
-        string sceneComponentList = CreateComponentList();
-
         labelSystemPrompt =
         "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
         "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
@@ -91,7 +89,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         provide context for the assistant.\r\nDon't make assumptions about what values to plug into functions. Ask for clarification if 
         a user request is ambiguous.";
 
-        Debug.Log(sceneComponentList);
+        Debug.Log(aiBehaviourHandler.sceneComponentList);
     }
 
     //Creates component list based on the children of the objectHighlighter Gameobject
@@ -187,9 +185,9 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             if (message.tool_calls.Count > 0)
             {
                 List<Tool> callList = message.tool_calls;
-                foreach (var tool_call in callList)
+                foreach (var toolCall in callList)
                 {
-                    aiBehaviourHandler.GetType().GetMethod(tool_call.function.name).Invoke(aiBehaviourHandler, new object[] { tool_call.function.arguments });
+                    aiBehaviourHandler.GetType().GetMethod(toolCall.function.name).Invoke(aiBehaviourHandler, new object[] { toolCall.function.arguments });
                 }
             }
         }
@@ -215,7 +213,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                     parameters = new {
                         type = "object",
                         properties = new {
-                            highlighted_object = new {
+                            componentName = new {
                             type = "string",
                             objectList = new [] {
                                 "x1",
@@ -227,7 +225,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                     },
                         required = new[]
                         {
-                            "highlighted_object"
+                            "componentName"
                         }
                     }
                 }

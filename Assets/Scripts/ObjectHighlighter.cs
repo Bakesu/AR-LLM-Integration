@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,5 +44,11 @@ public class ObjectHighlighter : MonoBehaviour
             highlightedObject.GetComponent<MeshRenderer>().material = transparentMaterial;
         }
         highlightedObjects.Clear();
+    }
+
+    internal void highlightObject(string targetObject)
+    {
+        var outline = imageTargets[targetObject].transform.GetChild(0);
+        outline.gameObject.SetActive(true);
     }
 }
