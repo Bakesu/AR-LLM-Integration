@@ -2,17 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class AIController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void highlight_objects(string parameters)
     {
-        
+        Debug.Log("highlighted_object yipeee");
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

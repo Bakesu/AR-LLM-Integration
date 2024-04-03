@@ -28,6 +28,9 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     [SerializeField]
     private ObjectHighlighter objectHighlighter;
 
+    [SerializeField]
+    private AIController aiController;
+
     private float temperature = 0.5f;
     private static object[] tools;
 
@@ -73,7 +76,16 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         "For the second section, after the curly brackets, " +
 
         "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(labelSystemPrompt) }));
+
+        string functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values.
+        \r\n[Motherboard:x1, CPU:x2, Ram:x3]\r\nIf the users asks about the location of a key in the dictionary, you are to highlight 
+        the value corresponding to the inquiry. \r\nIf the user asks about how to place a component in the motherboard, you are to 
+        request an image of the motherboard. \r\nIf the user doesnt ask about specific key, you are to provide a standard textual 
+        answer which you give by calling the textual_answer function with the answer in the parameter. \r\nIf the user asks about 
+        something in their environment that the assistant dont have the contextual knowledge about, \r\nyou are to capture an image to 
+        provide context for the assistant.\r\nDon't make assumptions about what values to plug into functions. Ask for clarification if 
+        a user request is ambiguous.";
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
 
         Debug.Log(sceneComponentList);
     }
@@ -123,8 +135,19 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         {
             string result = uwr.downloadHandler.text;
             Debug.Log(result);
-            ChatAndImageResDTO resultAsObject = JsonConvert.DeserializeObject<ChatAndImageResDTO>(result);
+            ChatResDTO resultAsObject = JsonConvert.DeserializeObject<ChatResDTO>(result);
             ExtractedData extractedData = DataUtility.extractDataFromResponse(resultAsObject.choices[0].message.content);
+            Debug.Log(resultAsObject.choices[0].message.tool_calls[0].function.name);
+            Debug.Log(resultAsObject.choices[0].message.tool_calls[0].function.arguments);
+            if (resultAsObject.choices[0].message.tool_calls.Count > 0)
+            {
+                var callList = resultAsObject.choices[0].message.tool_calls;
+                foreach (var tool_call in callList)
+                {
+                    
+                    aiController.GetType().GetMethod(tool_call.function.name).Invoke(aiController, new object[] { tool_call.function.arguments });
+                }
+            }
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
             objectHighlighter.HighlightLabels(extractedData.Label);
@@ -140,6 +163,13 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             }
 
         }
+    }
+
+    static object AvailableFunctions(string name)
+    {
+        //callableFunctions.Add("highlight_objects", highlighted_object);
+
+        return null;
     }
 
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
@@ -175,30 +205,30 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         tools = new object[]
         {
             new {
-            type = "function",
-            function = new
-            {
-                name = "highlight_objects",
-                description =  "Highlight the objects that the user mentions in their prompt",
-                parameters = new {
-                    type = "object",
-                    properties = new {
-                        highlighted_object = new {
-                        type = "string",
-                        objectList = new [] {
-                            "x1",
-                            "x2",
-                            "x3"
-                        },
-                        description = "The value corresponding to keys in the users prompt"
-                }
-                },
-                    required = new[]
-                    {
-                        "highlighted_object"
+                type = "function",
+                function = new
+                {
+                    name = "highlight_objects",
+                    description =  "Highlight the objects that the user mentions in their prompt",
+                    parameters = new {
+                        type = "object",
+                        properties = new {
+                            highlighted_object = new {
+                            type = "string",
+                            objectList = new [] {
+                                "x1",
+                                "x2",
+                                "x3"
+                            },
+                            description = "The value corresponding to keys in the users prompt"
+                    }
+                    },
+                        required = new[]
+                        {
+                            "highlighted_object"
+                        }
                     }
                 }
-            }
             },
             new {
                 type = "function",
