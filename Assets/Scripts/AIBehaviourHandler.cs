@@ -20,26 +20,20 @@ public class AIBehaviourHandler : MonoBehaviour
         sceneComponentList = CreateComponentList();
     }
 
-    internal void HighlightLabels(LabelExtractedData extractedData)
+    internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
-        try
-        {
-            objectHighlighter.HighlightLabels(extractedData.Label);
-            Debug.Log("label: " + String.Join(", ", extractedData.Label) + " + TextContent: " + extractedData.TextContent);
-            promptAnswerText.text = extractedData.TextContent;
-        }
-        catch (Exception e)
-        {
-            Debug.Log("No labels were given " + e);
-        }
+        objectHighlighter.HighlightLabels(extractedLabelData.Label);
+        Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
+        promptAnswerText.text = extractedLabelData.TextContent;
     }
-    public void highlight_objects(string componentName)
+
+    public void HighlightObjects(string componentName)
     {
-        componentName = DataUtility.StringManip(componentName);
+        componentName = DataUtility.ExtractFunctionArgumentsFromFCString(componentName);
         
         if(objectHighlighter.imageTargets.ContainsKey(componentName))
         {            
-            objectHighlighter.highlightObject(componentName);
+            objectHighlighter.HighlightObject(componentName);
         }
         else
         {
@@ -49,7 +43,19 @@ public class AIBehaviourHandler : MonoBehaviour
         //objectHighlighter.highlightObject();
     }
 
-    
+    public void TextualAnswer(string FCArgument)
+    {
+        var answer = DataUtility.ExtractFunctionArgumentsFromFCString(FCArgument);
+        promptAnswerText.text = answer;
+    }
+
+    public void CaptureImage(string FCArgument)
+    {
+        Debug.Log("CaptureImage was called: ");
+        //TODO: make CreateImageRequest() call
+    }
+
+
 
     //Creates component list based on the children of the objectHighlighter Gameobject
     internal string CreateComponentList()

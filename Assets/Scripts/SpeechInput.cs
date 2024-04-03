@@ -104,12 +104,16 @@ public class SpeechInput : MonoBehaviour
 
     public void StartDictation()
     {
-        debugWindow.Clear();
         //objectHighlighter.ClearLabelHighlights();
         //dictationSubsystem.StartDictation();
         //Debug.Log("Start Dictating!");
+
+        //Clear all highlights and prompt text
+        debugWindow.Clear();
+        objectHighlighter.ClearAllHighlights();
+
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.CreateFunctionCallRequest("Where is the Motherboard?");
+        requestHandler.CreateFunctionCallRequest("What is this?");
     }
 
 

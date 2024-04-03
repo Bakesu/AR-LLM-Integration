@@ -33,7 +33,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     [SerializeField]
     private AIBehaviourHandler aiBehaviourHandler;
 
-    private float temperature = 0.5f;
+    private float temperature = 0.2f;
     private static object[] tools;
 
     private DebugWindow debugWindow;
@@ -66,45 +66,26 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private IEnumerator SetupGPT()
     {
         yield return new WaitForSeconds(1);
-        labelSystemPrompt =
-        "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
-        "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
-        "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
-        "Additionally, each column ends with a number. These numbers, from left to right, range from '1' to '8' in numerical order." +
-        "The labels are written in bold red letters and numbers and encased in a blue square." +
-        "\r\n If you consider the requested area as clipping between multiple labels or covers multiple labels please provide all those labels" +
-        "\r\n Your answer should be twofold." +
-        "\r\n For the first section, please begin your answer with the label(s) of the grid cell " +
-        "and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label." +
-        "For the second section, after the curly brackets, " +
-
-        "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
+        labelSystemPrompt = @"You will be asked to help identify, locate or describe objects in provided images by using labels on the image, 
+        which will be detailed further now. The image will contain labels in a 8x5 grid ranging from A1 to E8. Each row begins with a letter. 
+        These letters, from top to bottom, range from 'A' to 'E' in alphabetical order. Additionally, each column ends with a number. 
+        These numbers, from left to right, range from '1' to '8' in numerical order. The labels are written in bold red letters and numbers 
+        and encased in a blue square. If you consider the requested area as clipping between multiple labels or covers multiple labels please
+        provide all those labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
+        and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, 
+        after the curly brackets, please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
 
         functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values.
-        \r\n[Motherboard:x1, CPU:x2, Ram:x3]\r\nIf the users asks about the location of a key in the dictionary, you are to highlight 
-        the value corresponding to the inquiry. \r\nIf the user asks about how to place a component in the motherboard, you are to 
-        request an image of the motherboard. \r\nIf the user doesnt ask about specific key, you are to provide a standard textual 
-        answer which you give by calling the textual_answer function with the answer in the parameter. \r\nIf the user asks about 
-        something in their environment that the assistant dont have the contextual knowledge about, \r\nyou are to capture an image to 
-        provide context for the assistant.\r\nDon't make assumptions about what values to plug into functions. Ask for clarification if 
-        a user request is ambiguous.";
+        [Motherboard:x1, CPU:x2, Ram:x3]
+        If the users asks about the location of a key in the dictionary, you are to highlight the value corresponding to the inquiry. 
+        If the user asks about how to place a component on the motherboard, you are to request an image of the motherboard. 
+        If the user doesnt ask about specific key, you are to provide a standard textual answer which you give by calling the TextualAnswer 
+        function with the answer in the parameter. 
+        If the user asks about something in their environment that the assistant dont have the contextual knowledge about, 
+        you are to capture an image to provide context for the assistant with the function CaptureImage.";
+        //Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous.";
 
-        Debug.Log(aiBehaviourHandler.sceneComponentList);
-    }
-
-    //Creates component list based on the children of the objectHighlighter Gameobject
-    private string CreateComponentList()
-    {
-        var sceneObjectList = "[";
-        foreach (var qrObjectPair in objectHighlighter.imageTargets)
-        {
-            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
-            sceneObjectList = string.Concat(sceneObjectList, listAppend);
-        }
-        char[] charsToTrim = { ',', ' ' };
-        sceneObjectList = sceneObjectList.TrimEnd(charsToTrim);
-        sceneObjectList = string.Concat(sceneObjectList, "]");
-        return sceneObjectList;
+        Debug.Log("Ready");
     }
 
     internal void CreateFunctionCallRequest(string textPrompt)
@@ -178,7 +159,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     {
         Message message = result.choices[0].message;
         string finishedReason = result.choices[0].finish_reason;
-        if (finishedReason == "tool_calls") //If the response is a function call
+        if (finishedReason == "tool_calls" || message.content == null) //If the response is a function call
         {
             Debug.Log(message.tool_calls[0].function.name);
             Debug.Log(message.tool_calls[0].function.arguments);
@@ -193,10 +174,11 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         }
         else //If the response is a vision response
         {
-            LabelExtractedData extractedData = DataUtility.extractDataFromResponse(message.content);
-            messageList.Add(new Message("assistant", extractedData.TextContent));
+            ExtractedLabelData extractedLabelData = DataUtility.extractDataFromResponse(message.content);
+            if (extractedLabelData == null) return;
+            messageList.Add(new Message("assistant", extractedLabelData.TextContent));
 
-            aiBehaviourHandler.HighlightLabels(extractedData);
+            aiBehaviourHandler.HighlightLabels(extractedLabelData);
         }
     }
 
@@ -208,7 +190,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 type = "function",
                 function = new
                 {
-                    name = "highlight_objects",
+                    name = "HighlightObjects",
                     description =  "Highlight the objects that the user mentions in their prompt",
                     parameters = new {
                         type = "object",
@@ -234,7 +216,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 type = "function",
                 function = new
                 {
-                    name = "capture_image",
+                    name = "CaptureImage",
                     description = "Capture an image from the point of view of the user to provide context for the assistant"
                 }
             },
@@ -242,7 +224,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 type = "function",
                 function = new
                 {
-                    name = "textual_answer",
+                    name = "TextualAnswer",
                     description = "Provide a textual answer to the user's question",
                     parameters = new {
                         type = "object",
