@@ -15,12 +15,14 @@ using MixedReality.Toolkit.Subsystems;
 using MixedReality.Toolkit;
 using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEditor;
+using Tool = Chat.Tool;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
 
     [SerializeField]
-    TextMeshProUGUI textMesh;
+    TextMeshProUGUI promptAnswerText;
 
     [SerializeField]
     GameObject promptButton;
@@ -42,7 +44,9 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
-    internal string sceneComponentList;
+
+    string labelSystemPrompt;
+    string functionSystemPrompt;
 
     public void Start()
     {
@@ -62,9 +66,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private IEnumerator SetupGPT()
     {
         yield return new WaitForSeconds(1);
-        sceneComponentList = aiBehaviourHandler.CreateComponentList();
-
-        string labelSystemPrompt =
+        labelSystemPrompt =
         "You will be asked to help identify, locate or describe objects in provided images by using labels on the image, which will be detailed further now." +
         "\r\n The image will contain labels in a 8x5 grid ranging from A1 to E8." +
         "Each row begins with a letter. These letters, from top to bottom, range from 'A' to 'E' in alphabetical order." +
@@ -78,7 +80,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
         "please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
 
-        string functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values.
+        functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values.
         \r\n[Motherboard:x1, CPU:x2, Ram:x3]\r\nIf the users asks about the location of a key in the dictionary, you are to highlight 
         the value corresponding to the inquiry. \r\nIf the user asks about how to place a component in the motherboard, you are to 
         request an image of the motherboard. \r\nIf the user doesnt ask about specific key, you are to provide a standard textual 
@@ -86,12 +88,24 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         something in their environment that the assistant dont have the contextual knowledge about, \r\nyou are to capture an image to 
         provide context for the assistant.\r\nDon't make assumptions about what values to plug into functions. Ask for clarification if 
         a user request is ambiguous.";
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
 
-        Debug.Log(sceneComponentList);
+        Debug.Log(aiBehaviourHandler.sceneComponentList);
     }
 
-
+    //Creates component list based on the children of the objectHighlighter Gameobject
+    private string CreateComponentList()
+    {
+        var sceneObjectList = "[";
+        foreach (var qrObjectPair in objectHighlighter.imageTargets)
+        {
+            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
+            sceneObjectList = string.Concat(sceneObjectList, listAppend);
+        }
+        char[] charsToTrim = { ',', ' ' };
+        sceneObjectList = sceneObjectList.TrimEnd(charsToTrim);
+        sceneObjectList = string.Concat(sceneObjectList, "]");
+        return sceneObjectList;
+    }
 
     internal void CreateFunctionCallRequest(string textPrompt)
     {
@@ -103,6 +117,38 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     {
         byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes);
         StartCoroutine(CreateGPTRequest(requestBody));
+    }
+
+    private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
+    {
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(labelSystemPrompt) }));
+
+        string imageAsBase64 = "data:image/png;base64," + Convert.ToBase64String(imageAsBytes);
+        var contentList = new List<IContent>
+        {
+            new TextContent(textPrompt),
+            new ImageContent(imageAsBase64, "low")
+        };
+        //TODO: figure out what to do with image requests in messageList - image requests would break requests from the other type of body
+        messageList.Add(new ReqMessage("user", contentList));
+        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
+        var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
+        return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
+    }
+
+    private byte[] CreateFunctionCallRequestBody(string textPrompt)
+    {
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
+
+        var contentList = new List<IContent>
+        {
+            new TextContent(textPrompt)
+        };
+        messageList.Add(new ReqMessage("user", contentList));
+        chatAndImageReqDTO = new RequestDTO("gpt-4-turbo-preview", 50, temperature, messageList, tools);
+        var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
+        Debug.Log(requestBodyAsJSONString);
+        return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
 
     internal IEnumerator CreateGPTRequest(byte[] requestBody)
@@ -124,65 +170,34 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             string result = uwr.downloadHandler.text;
             Debug.Log(result);
             ChatResDTO resultAsObject = JsonConvert.DeserializeObject<ChatResDTO>(result);
-            ExtractedData extractedData = DataUtility.extractDataFromResponse(resultAsObject.choices[0].message.content);
-            if (resultAsObject.choices[0].message.tool_calls.Count > 0)
-            {
-                var callList = resultAsObject.choices[0].message.tool_calls;
-                foreach (var toolCall in callList)
-                {                    
-                    aiBehaviourHandler.GetType().GetMethod(toolCall.function.name).Invoke(aiBehaviourHandler, new object[] { toolCall.function.arguments });
-                }
-            }
-            messageList.Add(new Message("assistant", extractedData.TextContent));
-
-            objectHighlighter.HighlightLabels(extractedData.Label);
-            try
-            {
-                objectHighlighter.HighlightLabels(extractedData.Label);
-                Debug.Log("label: " + String.Join(", ", extractedData.Label) + " + TextContent: " + extractedData.TextContent);
-                textMesh.text = extractedData.TextContent;
-            }
-            catch (Exception e)
-            {
-                Debug.Log("No labels were given " + e);
-            }
-
+            HandleGPTResponse(resultAsObject);
         }
     }
 
-    static object AvailableFunctions(string name)
+    private void HandleGPTResponse(ChatResDTO result)
     {
-        //callableFunctions.Add("highlight_objects", highlighted_object);
-
-        return null;
-    }
-
-    private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
-    {
-        string imageAsBase64 = "data:image/png;base64," + Convert.ToBase64String(imageAsBytes);
-        var contentList = new List<IContent>
+        Message message = result.choices[0].message;
+        string finishedReason = result.choices[0].finish_reason;
+        if (finishedReason == "tool_calls") //If the response is a function call
         {
-            new TextContent(textPrompt),
-            new ImageContent(imageAsBase64, "low")
-        };
-        //TODO: figure out what to do with image requests in messageList - image requests would break requests from the other type of body
-        messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
-        var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
-        return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
-    }
-
-    private byte[] CreateFunctionCallRequestBody(string textPrompt)
-    {
-        var contentList = new List<IContent>
+            Debug.Log(message.tool_calls[0].function.name);
+            Debug.Log(message.tool_calls[0].function.arguments);
+            if (message.tool_calls.Count > 0)
+            {
+                List<Tool> callList = message.tool_calls;
+                foreach (var toolCall in callList)
+                {
+                    aiBehaviourHandler.GetType().GetMethod(toolCall.function.name).Invoke(aiBehaviourHandler, new object[] { toolCall.function.arguments });
+                }
+            }
+        }
+        else //If the response is a vision response
         {
-            new TextContent(textPrompt)
-        };
-        messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new RequestDTO("gpt-4-turbo-preview", 50, temperature, messageList, tools);
-        var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
-        Debug.Log(requestBodyAsJSONString);
-        return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
+            LabelExtractedData extractedData = DataUtility.extractDataFromResponse(message.content);
+            messageList.Add(new Message("assistant", extractedData.TextContent));
+
+            aiBehaviourHandler.HighlightLabels(extractedData);
+        }
     }
 
     static object[] CreateTools()
