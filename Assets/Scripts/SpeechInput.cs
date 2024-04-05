@@ -79,7 +79,7 @@ public class SpeechInput : MonoBehaviour
             imageCapture.photoCaptureObject = null;
         }
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.CreateImageRequest(dictationResult, imageAsPNG);
+        requestHandler.CreateImageRequest(dictationResult, imageAsPNG, true);
         
         //imageCapture.CaptureImageAndSendIt();        
     }
@@ -113,7 +113,9 @@ public class SpeechInput : MonoBehaviour
         objectHighlighter.ClearAllHighlights();
 
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.CreateFunctionCallRequest("What is this?");
+        var hardcodedPrompt = "What is this?";
+        dictationResult = hardcodedPrompt;
+        requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
     }
 
 

@@ -11,14 +11,10 @@ public class AIBehaviourHandler : MonoBehaviour
     private ObjectHighlighter objectHighlighter;
 
     [SerializeField]
+    private ImageCapture imageCapture;
+
+    [SerializeField]
     TextMeshProUGUI promptAnswerText;
-
-    internal string sceneComponentList;
-
-    public void Start()
-    {
-        sceneComponentList = CreateComponentList();
-    }
 
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
@@ -52,23 +48,7 @@ public class AIBehaviourHandler : MonoBehaviour
     public void CaptureImage(string FCArgument)
     {
         Debug.Log("CaptureImage was called: ");
+        imageCapture.CaptureImageAndSendIt();
         //TODO: make CreateImageRequest() call
-    }
-
-
-
-    //Creates component list based on the children of the objectHighlighter Gameobject
-    internal string CreateComponentList()
-    {
-        var sceneObjectList = "[";
-        foreach (var qrObjectPair in objectHighlighter.imageTargets)
-        {
-            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
-            sceneObjectList = string.Concat(sceneObjectList, listAppend);
-        }
-        char[] charsToTrim = { ',', ' ' };
-        sceneObjectList = sceneObjectList.TrimEnd(charsToTrim);
-        sceneObjectList = string.Concat(sceneObjectList, "]");
-        return sceneObjectList;
     }
 }

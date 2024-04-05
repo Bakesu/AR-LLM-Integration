@@ -12,6 +12,33 @@ public class ExtractedLabelData
 
 public static class DataUtility
 {
+    //Creates component list based on the children of the objectHighlighter Gameobject
+    internal static string CreateComponentList(Dictionary<string, GameObject> imageTargets)
+    {
+        var sceneObjectList = "[";
+        foreach (var qrObjectPair in imageTargets)
+        {
+            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
+            sceneObjectList = string.Concat(sceneObjectList, listAppend);
+        }
+        char[] charsToTrim = { ',', ' ' };
+        sceneObjectList = sceneObjectList.TrimEnd(charsToTrim);
+        sceneObjectList = string.Concat(sceneObjectList, "]");
+        return sceneObjectList;
+    }
+
+    public static bool IsLabelResponse(string response)
+    {
+        if (response.StartsWith("{"))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public static ExtractedLabelData extractDataFromResponse(string response)
     {
         string textcontent = "";
@@ -31,7 +58,7 @@ public static class DataUtility
 
         } catch (Exception e)
         {
-            Debug.Log("No label was given " + e);
+            Debug.Log("No label was given ");
             textcontent = response;
             labels = null;
         }

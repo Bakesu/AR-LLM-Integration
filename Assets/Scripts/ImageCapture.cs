@@ -51,10 +51,11 @@ public class ImageCapture : MonoBehaviour
     {
         Debug.Log("editor only code");
         yield return new WaitForEndOfFrame();
-        targetTexture = new Texture2D(1920, 1080);
-        targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 1f, 1f);
-        StartCoroutine(ShowImage(targetTexture));
-        //StartCoroutine(requestHandler.ImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG()));
+        //targetTexture = new Texture2D(1920, 1080);
+        targetTexture = ScreenCapture.CaptureScreenshotAsTexture();
+        //targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 1f, 1f);
+        //StartCoroutine(ShowImage(targetTexture));
+        requestHandler.CreateImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG(), false);
     }
 
     /**
@@ -109,7 +110,7 @@ public class ImageCapture : MonoBehaviour
             string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
             File.WriteAllBytes(filePath, imageAsPNG);
 
-            requestHandler.CreateImageRequest(speechInput.dictationResult, imageAsPNG);
+            requestHandler.CreateImageRequest(speechInput.dictationResult, imageAsPNG, false);
             StartCoroutine(ShowImage(targetTexture));
         }
         else

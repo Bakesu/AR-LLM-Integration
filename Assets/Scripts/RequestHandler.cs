@@ -9,8 +9,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using Chat;
-using ChatAndImage;
 using MixedReality.Toolkit.Subsystems;
+using ChatAndImage;
 
 using MixedReality.Toolkit;
 using System.Linq;
@@ -45,6 +45,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
     internal string APIKey = "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";
 
+    string defaultTextSystemPrompt;
     string labelSystemPrompt;
     string functionSystemPrompt;
 
@@ -66,6 +67,9 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private IEnumerator SetupGPT()
     {
         yield return new WaitForSeconds(1);
+
+        defaultTextSystemPrompt = "You will be asked to help identify, locate, describe objects or give general information from a provided image.";
+
         labelSystemPrompt = @"You will be asked to help identify, locate or describe objects in provided images by using labels on the image, 
         which will be detailed further now. The image will contain labels in a 8x5 grid ranging from A1 to E8. Each row begins with a letter. 
         These letters, from top to bottom, range from 'A' to 'E' in alphabetical order. Additionally, each column ends with a number. 
@@ -75,9 +79,9 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, 
         after the curly brackets, please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
 
-        functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values.
-        [Motherboard:x1, CPU:x2, Ram:x3]
-        If the users asks about the location of a key in the dictionary, you are to highlight the value corresponding to the inquiry. 
+        functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values."
+        + DataUtility.CreateComponentList(objectHighlighter.imageTargets) +
+        @"If the users asks about the location of a key in the dictionary, you are to highlight the value corresponding to the inquiry. 
         If the user asks about how to place a component on the motherboard, you are to request an image of the motherboard. 
         If the user doesnt ask about specific key, you are to provide a standard textual answer which you give by calling the TextualAnswer 
         function with the answer in the parameter. 
@@ -85,6 +89,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         you are to capture an image to provide context for the assistant with the function CaptureImage.";
         //Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous.";
 
+        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
         Debug.Log("Ready");
     }
 
@@ -94,15 +99,21 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         StartCoroutine(CreateGPTRequest(requestBody));
     }
 
-    internal void CreateImageRequest(string textPrompt, byte[] imageAsBytes)
+    internal void CreateImageRequest(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
     {
-        byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes);
+        byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes, isWithLabels);
         StartCoroutine(CreateGPTRequest(requestBody));
     }
 
-    private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes)
+    private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
     {
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(labelSystemPrompt) }));
+        if(isWithLabels)
+        {
+            messageList[0] = new ReqMessage("system", new List<IContent> { new TextContent(labelSystemPrompt) });
+        } else
+        {
+            messageList[0] = new ReqMessage("system", new List<IContent> { new TextContent(defaultTextSystemPrompt) });
+        }
 
         string imageAsBase64 = "data:image/png;base64," + Convert.ToBase64String(imageAsBytes);
         var contentList = new List<IContent>
@@ -114,12 +125,13 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         messageList.Add(new ReqMessage("user", contentList));
         chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
+        Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
 
     private byte[] CreateFunctionCallRequestBody(string textPrompt)
     {
-        messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
+        messageList[0] = new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) });
 
         var contentList = new List<IContent>
         {
@@ -174,11 +186,19 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         }
         else //If the response is a vision response
         {
-            ExtractedLabelData extractedLabelData = DataUtility.extractDataFromResponse(message.content);
-            if (extractedLabelData == null) return;
-            messageList.Add(new Message("assistant", extractedLabelData.TextContent));
+            bool isLabelResponse = DataUtility.IsLabelResponse(message.content);
+            if (isLabelResponse)
+            {
+                ExtractedLabelData extractedLabelData = DataUtility.extractDataFromResponse(message.content);
+                aiBehaviourHandler.HighlightLabels(extractedLabelData);
+                messageList.Add(new Message("assistant", extractedLabelData.TextContent));
+            }
+            else
+            {
+                promptAnswerText.text = message.content;
+                messageList.Add(new Message("assistant", message.content));
+            }
 
-            aiBehaviourHandler.HighlightLabels(extractedLabelData);
         }
     }
 
