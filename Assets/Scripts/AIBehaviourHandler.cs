@@ -20,7 +20,7 @@ public class AIBehaviourHandler : MonoBehaviour
         sceneComponentList = CreateComponentList();
     }
 
-    internal void HighlightLabels(LabelExtractedData extractedData)
+    internal void HighlightLabels(ExtractedLabelData extractedData)
     {
         try
         {

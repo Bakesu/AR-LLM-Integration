@@ -193,7 +193,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         }
         else //If the response is a vision response
         {
-            LabelExtractedData extractedData = DataUtility.extractDataFromResponse(message.content);
+            ExtractedLabelData extractedData = DataUtility.extractDataFromResponse(message.content);
             messageList.Add(new Message("assistant", extractedData.TextContent));
 
             aiBehaviourHandler.HighlightLabels(extractedData);

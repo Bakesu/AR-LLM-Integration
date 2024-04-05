@@ -4,7 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ExtractedData
+public class ExtractedLabelData
 {
     public List<string> Label { get; set; }
     public string TextContent { get; set; }
@@ -12,7 +12,7 @@ public class ExtractedData
 
 public static class DataUtility
 {
-    public static ExtractedData extractDataFromResponse(string response)
+    public static ExtractedLabelData extractDataFromResponse(string response)
     {
         string textcontent = "";
         List<string> labels;
@@ -36,7 +36,7 @@ public static class DataUtility
             labels = null;
         }
         
-        return new ExtractedData
+        return new ExtractedLabelData
         {
             Label = labels,
             TextContent = textcontent
