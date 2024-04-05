@@ -43,9 +43,10 @@ public static class DataUtility
         };
     }
 
-    internal static string StringManip(string stringToTrim)
+    internal static string ExtractFunctionArgumentsFromFCString(string stringToManipulate)
     {
-        var tempString = stringToTrim.Split(':');
+        if(stringToManipulate == null || stringToManipulate == "") return "";
+        var tempString = stringToManipulate.Split(':');
         char[] charsToTrim = { '"', '{','}' };     
         return tempString[1].Trim(charsToTrim);
     }
