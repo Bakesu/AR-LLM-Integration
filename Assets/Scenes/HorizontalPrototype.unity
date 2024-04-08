@@ -1242,13 +1242,14 @@ GameObject:
   - component: {fileID: 223974230}
   - component: {fileID: 223974229}
   - component: {fileID: 223974231}
+  - component: {fileID: 223974232}
   m_Layer: 0
   m_Name: CPU
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &223974227
 Transform:
   m_ObjectHideFlags: 0
@@ -1258,7 +1259,7 @@ Transform:
   m_GameObject: {fileID: 223974226}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.379, y: 0, z: 0}
+  m_LocalPosition: {x: 0.3872, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1306,9 +1307,9 @@ MonoBehaviour:
   OnTargetFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ImageTrackManager, Assembly-CSharp
-        m_MethodName: OnTargetFound
+      - m_Target: {fileID: 223974231}
+        m_TargetAssemblyTypeName: TrackingNotifier, Assembly-CSharp
+        m_MethodName: OnTrackingFound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1348,19 +1349,31 @@ MonoBehaviour:
   PreviewVisible: 1
   RuntimeOcclusion: 0
   RuntimeCollider: 0
-  mTrackableName: x2
+  mTrackableName: CPU QR
   mInitializedInEditor: 1
   mDataSetPath: 
   mAspectRatio: 1
   mImageTargetType: 3
-  mWidth: 0.06
-  mHeight: 0.06
+  mWidth: 0.05
+  mHeight: 0.05
   mRuntimeTexture: {fileID: 2800000, guid: a0284cfed94569c4e89ab57b25b645d9, type: 3}
   mMotionHint: 1
   mTrackingOptimization: 0
   mTrackingOptimizationNeedsUpgrade: 0
-  mPreview: {fileID: 223974231}
+  mPreview: {fileID: 223974232}
 --- !u!114 &223974231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223974226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f850393238bfcc44386949cde07c59d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &223974232
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1374,7 +1387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mObserverBehaviour: {fileID: 223974230}
   mHiddenRoot: {fileID: 0}
-  mTargetName: x2
+  mTargetName: CPU QR
   mDatasetName: 
   mCastedBehaviour: {fileID: 223974230}
   mMeshFilter: {fileID: 0}
@@ -3754,7 +3767,7 @@ Transform:
   m_GameObject: {fileID: 782628375}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.09, y: 0.04, z: 0}
+  m_LocalPosition: {x: 0, y: 0.0044, z: 0}
   m_LocalScale: {x: 0.003, y: 0.003, z: 0.003}
   m_ConstrainProportionsScale: 1
   m_Children: []
