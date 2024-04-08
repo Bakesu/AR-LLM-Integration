@@ -5,7 +5,7 @@ using Unity.XR.CoreUtils;
 using UnityEngine;
 
 
-public class AIBehaviourHandler : MonoBehaviour
+public class FunctionCallHandler : MonoBehaviour
 {
     [SerializeField]
     private ObjectHighlighter objectHighlighter;

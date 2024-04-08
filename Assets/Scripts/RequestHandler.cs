@@ -31,7 +31,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private ObjectHighlighter objectHighlighter;
 
     [SerializeField]
-    private AIBehaviourHandler aiBehaviourHandler;
+    private FunctionCallHandler functionCallHandler;
 
     private float temperature = 0.2f;
     private static object[] tools;
@@ -68,7 +68,8 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     {
         yield return new WaitForSeconds(1);
 
-        defaultTextSystemPrompt = "You will be asked to help identify, locate, describe objects or give general information from a provided image.";
+        defaultTextSystemPrompt = @"You will be asked to help identify, locate, describe objects or give general information from a provided image. 
+        Only answer with 40 words";
 
         labelSystemPrompt = @"You will be asked to help identify, locate or describe objects in provided images by using labels on the image, 
         which will be detailed further now. The image will contain labels in a 8x5 grid ranging from A1 to E8. Each row begins with a letter. 
@@ -180,7 +181,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 List<Tool> callList = message.tool_calls;
                 foreach (var toolCall in callList)
                 {
-                    aiBehaviourHandler.GetType().GetMethod(toolCall.function.name).Invoke(aiBehaviourHandler, new object[] { toolCall.function.arguments });
+                    functionCallHandler.GetType().GetMethod(toolCall.function.name).Invoke(functionCallHandler, new object[] { toolCall.function.arguments });
                 }
             }
         }
@@ -190,7 +191,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             if (isLabelResponse)
             {
                 ExtractedLabelData extractedLabelData = DataUtility.extractDataFromResponse(message.content);
-                aiBehaviourHandler.HighlightLabels(extractedLabelData);
+                functionCallHandler.HighlightLabels(extractedLabelData);
                 messageList.Add(new Message("assistant", extractedLabelData.TextContent));
             }
             else
@@ -264,7 +265,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 type = "function",
                 function = new
                 {
-                    name = "get_label_image",
+                    name = "GiveInstructions",
                     description = "When the user asks about a location on the motherboard, the assistant will request an image of the motherboard"
                 }
             }
