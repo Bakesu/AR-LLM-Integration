@@ -33,7 +33,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     [SerializeField]
     private FunctionCallHandler functionCallHandler;
 
-    private float temperature = 0.2f;
+    private float temperature = 0.1f;
     private static object[] tools;
 
     private DebugWindow debugWindow;
@@ -48,6 +48,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     string defaultTextSystemPrompt;
     string labelSystemPrompt;
     string functionSystemPrompt;
+    internal bool imageRequestDone;
 
     public void Start()
     {
@@ -82,7 +83,8 @@ public class RequestHandler : MonoBehaviour, MessageInterface
 
         functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values."
         + DataUtility.CreateComponentList(objectHighlighter.imageTargets) +
-        @"If the users asks about the location of a key in the dictionary, you are to highlight the value corresponding to the inquiry. 
+        @" When calling a function, you should ALWAYS return a key from the dictionary.
+        If the users asks about the location of a key in the dictionary, you are to highlight the value corresponding to the inquiry. 
         If the user asks about how to place a component on the motherboard, you are to request an image of the motherboard. 
         If the user doesnt ask about specific key, you are to provide a standard textual answer which you give by calling the TextualAnswer 
         function with the answer in the parameter. 
@@ -91,7 +93,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         //Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous.";
 
         messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
-        Debug.Log("Ready");
+        Debug.Log("Ready");        
     }
 
     internal void CreateFunctionCallRequest(string textPrompt)
@@ -103,7 +105,13 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     internal void CreateImageRequest(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
     {
         byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes, isWithLabels);
-        StartCoroutine(CreateGPTRequest(requestBody));
+        StartCoroutine(CreateGPTRequest(requestBody));        
+    }
+
+    internal IEnumerator CreateRecursiveImageRequest(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
+    {
+        byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes, isWithLabels);
+        yield return CreateGPTRequest(requestBody);
     }
 
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
@@ -174,8 +182,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         string finishedReason = result.choices[0].finish_reason;
         if (finishedReason == "tool_calls" || message.content == null) //If the response is a function call
         {
-            Debug.Log(message.tool_calls[0].function.name);
-            Debug.Log(message.tool_calls[0].function.arguments);
             if (message.tool_calls.Count > 0)
             {
                 List<Tool> callList = message.tool_calls;
@@ -266,7 +272,39 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 function = new
                 {
                     name = "GiveInstructions",
-                    description = "When the user asks about a location on the motherboard, the assistant will request an image of the motherboard"
+                    description = "When the user asks about a location on the motherboard, the assistant will request an image of the motherboard. Parameters should be contained in the objectList",
+                    parameters = new {
+                        type = "object",
+                        properties = new
+                        {
+                            placeableObject = new
+                            {
+                                type = "string",
+                                objectList = new []
+                                {
+                                    "x1",
+                                    "x2",
+                                    "x3"
+                                },
+                                description = "The value corresponding to the key that the user wants to know where to put or how to place."
+                            },
+                            assemblingObject = new
+                            {
+                                type = "string",
+                                objectList = new []
+                                {
+                                    "x1",
+                                    "x2",
+                                    "x3"
+                                },
+                                description = "The value corresponding to the key that the user is assembling/constructing/building."
+                            }
+                        },
+                        required = new[] {
+                            "placeableObject",
+                            "assemblingObject"
+                        }
+                    },
                 }
             }
         };

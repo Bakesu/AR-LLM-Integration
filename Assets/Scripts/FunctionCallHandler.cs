@@ -1,8 +1,12 @@
+using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using Unity.XR.CoreUtils;
 using UnityEngine;
+using static Microsoft.MixedReality.GraphicsTools.Editor.MeasureToolSettings;
 
 
 public class FunctionCallHandler : MonoBehaviour
@@ -14,7 +18,14 @@ public class FunctionCallHandler : MonoBehaviour
     private ImageCapture imageCapture;
 
     [SerializeField]
+    private RequestHandler requestHandler;
+
+    [SerializeField]
+    internal Texture2D hardcodedImage;
+
+    [SerializeField]
     TextMeshProUGUI promptAnswerText;
+    private bool imageRequestIsRunning = false;
 
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
@@ -49,6 +60,30 @@ public class FunctionCallHandler : MonoBehaviour
     {
         Debug.Log("CaptureImage was called: ");
         imageCapture.CaptureImageAndSendIt();
-        //TODO: make CreateImageRequest() call
+        //TODO: test on headset
+    }
+
+    public void GiveInstructions(string FCArgument)
+    {        
+        InstructionsObject instructionsObject = JsonConvert.DeserializeObject<InstructionsObject>(FCArgument);       
+        objectHighlighter.HighlightObject(instructionsObject.placeableObject);
+        string labelPrompt = "Please provide the labels for the following object: " + instructionsObject.assemblingObject;
+        var imageAsPNG = hardcodedImage.EncodeToPNG();        
+        var labels = GetInstructionObjectLabel(labelPrompt, imageAsPNG);
+        while (imageRequestIsRunning)
+        {
+            
+        }
+        Debug.Log("task done " + labels);
+        //instructionsObject.placeableObject
+        Debug.Log("assemblingObject = " + instructionsObject.assemblingObject + "placeableObject = " + instructionsObject.placeableObject);        
+    }
+
+    public string GetInstructionObjectLabel(string labelPrompt, byte[] imageAsPNG)
+    {
+        imageRequestIsRunning = true;
+        requestHandler.CreateImageRequest(labelPrompt, imageAsPNG, true);
+        return "done";
+        
     }
 }

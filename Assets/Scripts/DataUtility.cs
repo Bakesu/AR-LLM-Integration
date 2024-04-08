@@ -18,7 +18,7 @@ public static class DataUtility
         var sceneObjectList = "[";
         foreach (var qrObjectPair in imageTargets)
         {
-            string listAppend = qrObjectPair.Key + ":" + qrObjectPair.Value.gameObject.name + ", ";
+            string listAppend = qrObjectPair.Value.gameObject.name + ":" + qrObjectPair.Key + ", ";
             sceneObjectList = string.Concat(sceneObjectList, listAppend);
         }
         char[] charsToTrim = { ',', ' ' };
@@ -48,7 +48,7 @@ public static class DataUtility
             var responseSplitted = response.Split("}");
             var labelsString = responseSplitted[0];
             textcontent = responseSplitted[1].TrimStart('.').TrimStart();
-            char[] separators = new char[] { '{', '}', ','};
+            char[] separators = new char[] { '{', '}', ',' };
             string[] responseAsSubstrings = labelsString.Split(separators, StringSplitOptions.RemoveEmptyEntries);
             labels = new List<string>(responseAsSubstrings);
             for (int i = 0; i < labels.Count; i++)
@@ -56,13 +56,14 @@ public static class DataUtility
                 labels[i] = labels[i].Trim();
             }
 
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
-            Debug.Log("No label was given ");
+            Debug.Log("No label was given " + e);
             textcontent = response;
             labels = null;
         }
-        
+
         return new ExtractedLabelData
         {
             Label = labels,
@@ -72,9 +73,10 @@ public static class DataUtility
 
     internal static string ExtractFunctionArgumentsFromFCString(string stringToManipulate)
     {
-        if(stringToManipulate == null || stringToManipulate == "") return "";
+        if (stringToManipulate == null || stringToManipulate == "") return "";
+        char[] charsToTrim = { '"', '{', '}' };        
         var tempString = stringToManipulate.Split(':');
-        char[] charsToTrim = { '"', '{','}' };     
         return tempString[1].Trim(charsToTrim);
+
     }
 }

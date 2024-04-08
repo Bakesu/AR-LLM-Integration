@@ -113,7 +113,7 @@ public class SpeechInput : MonoBehaviour
         objectHighlighter.ClearAllHighlights();
 
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        var hardcodedPrompt = "What is this?";
+        var hardcodedPrompt = "What should the CPU be placed on the motherboard?";
         dictationResult = hardcodedPrompt;
         requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
     }

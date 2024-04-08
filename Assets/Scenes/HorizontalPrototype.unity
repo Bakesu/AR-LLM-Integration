@@ -1348,7 +1348,7 @@ MonoBehaviour:
   PreviewVisible: 1
   RuntimeOcclusion: 0
   RuntimeCollider: 0
-  mTrackableName: amd-phenom-ii-x4-965.front.variety.1576684641045
+  mTrackableName: x2
   mInitializedInEditor: 1
   mDataSetPath: 
   mAspectRatio: 0.9970239
@@ -1374,7 +1374,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mObserverBehaviour: {fileID: 223974230}
   mHiddenRoot: {fileID: 0}
-  mTargetName: amd-phenom-ii-x4-965.front.variety.1576684641045
+  mTargetName: x2
   mDatasetName: 
   mCastedBehaviour: {fileID: 223974230}
   mMeshFilter: {fileID: 0}
@@ -2256,7 +2256,7 @@ GameObject:
   - component: {fileID: 432258713}
   - component: {fileID: 432258716}
   - component: {fileID: 432258715}
-  - component: {fileID: 432258714}
+  - component: {fileID: 432258717}
   m_Layer: 0
   m_Name: ModelTarget
   m_TagString: Untagged
@@ -2279,24 +2279,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 973779394}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &432258714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 432258712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1621554113, guid: 8a9a760f95896c34689febc965510927, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mObserverBehaviour: {fileID: 432258716}
-  mHiddenRoot: {fileID: 0}
-  mTargetName: --- EMPTY ---
-  mDatasetName: Vuforia/--- EMPTY ---.xml
-  mCastedBehaviour: {fileID: 432258716}
-  mModelTargetPreview: {fileID: 0}
 --- !u!114 &432258715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2383,8 +2365,26 @@ MonoBehaviour:
   mTrackingOptimization: 0
   mTrackingOptimizationNeedsUpgrade: 0
   mHasRealisticTextures: 0
-  mPreview: {fileID: 432258714}
+  mPreview: {fileID: 432258717}
   mAutoValidationDataSetName: 
+--- !u!114 &432258717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 432258712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1621554113, guid: 8a9a760f95896c34689febc965510927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mObserverBehaviour: {fileID: 432258716}
+  mHiddenRoot: {fileID: 0}
+  mTargetName: --- EMPTY ---
+  mDatasetName: Vuforia/--- EMPTY ---.xml
+  mCastedBehaviour: {fileID: 432258716}
+  mModelTargetPreview: {fileID: 0}
 --- !u!1 &437219709
 GameObject:
   m_ObjectHideFlags: 0
@@ -5526,7 +5526,7 @@ MonoBehaviour:
   PreviewVisible: 1
   RuntimeOcclusion: 0
   RuntimeCollider: 0
-  mTrackableName: Screenshot 2024-04-05 at 10-44-45 ASUS M5A97 R2.0 - AMD 970
+  mTrackableName: x1
   mInitializedInEditor: 1
   mDataSetPath: 
   mAspectRatio: 0.7648612
@@ -5552,7 +5552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mObserverBehaviour: {fileID: 973779396}
   mHiddenRoot: {fileID: 0}
-  mTargetName: Screenshot 2024-04-05 at 10-44-45 ASUS M5A97 R2.0 - AMD 970
+  mTargetName: x1
   mDatasetName: 
   mCastedBehaviour: {fileID: 973779396}
   mMeshFilter: {fileID: 0}
@@ -10488,6 +10488,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectHighlighter: {fileID: 853749325}
   imageCapture: {fileID: 1398181243}
+  requestHandler: {fileID: 312680858}
+  hardcodedImage: {fileID: 2800000, guid: 058f6956c997cd2499338649185b06a5, type: 3}
   promptAnswerText: {fileID: 2123552186}
 --- !u!1 &1869731890
 GameObject:
