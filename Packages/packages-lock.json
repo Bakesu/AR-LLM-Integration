@@ -23,6 +23,13 @@
         "com.unity.xr.core-utils": "2.1.0"
       }
     },
+    "com.microsoft.mixedreality.visualprofiler": {
+      "version": "https://github.com/microsoft/VisualProfiler-Unity.git?path=/com.microsoft.mixedreality.visualprofiler",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "770ce149ecdf06db2f838478550f09be52c0b497"
+    },
     "com.microsoft.mrtk.graphicstools.unity": {
       "version": "file:MixedReality/com.microsoft.mrtk.graphicstools.unity-0.6.7.tgz",
       "depth": 0,

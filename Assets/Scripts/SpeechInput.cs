@@ -67,21 +67,20 @@ public class SpeechInput : MonoBehaviour
 
     private void Dictation_Recognized(DictationResultEventArgs args)
     {
+        objectHighlighter.ClearAllHighlights();
         debugWindow.Clear();
-        dictationResult = args.Result;
+        dictationResult = args.Result + "?";
         Debug.Log("Sending prompt:" + "'" + dictationResult + "'");
         dictationSubsystem.StopDictation();
         //If photocapture is set, we want to pull it down before creating a new one
-        if(imageCapture.photoCaptureObject != null)
+        if (imageCapture.photoCaptureObject != null)
         {
             Debug.Log("Disposing of old photoCaptureObject");
             imageCapture.photoCaptureObject.Dispose();
             imageCapture.photoCaptureObject = null;
         }
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.CreateImageRequest(dictationResult, imageAsPNG, true);
-        
-        //imageCapture.CaptureImageAndSendIt();        
+        requestHandler.CreateFunctionCallRequest(dictationResult);
     }
 
     private void Dictation_Recognizing(DictationResultEventArgs args)
@@ -104,16 +103,18 @@ public class SpeechInput : MonoBehaviour
 
     public void StartDictation()
     {
-        //objectHighlighter.ClearLabelHighlights();
-        //dictationSubsystem.StartDictation();
-        //Debug.Log("Start Dictating!");
 
+        //dictationSubsystem.StartDictation();
+        Debug.Log("Start Dictating!");
+
+        //Harcoded prompt for testing
         //Clear all highlights and prompt text
         debugWindow.Clear();
         objectHighlighter.ClearAllHighlights();
 
+
         var imageAsPNG = hardcodedImage.EncodeToPNG();
-        var hardcodedPrompt = "What should the CPU be placed on the motherboard?";
+        var hardcodedPrompt = "Where should the CPU be placed on the motherboard?";
         dictationResult = hardcodedPrompt;
         requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
     }

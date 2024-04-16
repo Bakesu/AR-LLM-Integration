@@ -25,7 +25,7 @@ public class ObjectHighlighter : MonoBehaviour
         }        
     }
     public void HighlightLabels(List<string> labelNames)
-    {
+    {        
         if (labelNames == null) return;
         foreach (var labelName in labelNames)
         {
@@ -40,8 +40,17 @@ public class ObjectHighlighter : MonoBehaviour
 
     internal void HighlightObject(string targetObject)
     {
-        var outline = imageTargets[targetObject].transform.GetChild(0);
-        outline.gameObject.SetActive(true);
+        GameObject value;
+        imageTargets.TryGetValue(targetObject, out value);
+        if (imageTargets.ContainsKey(targetObject) || value.activeInHierarchy)
+        {
+            var outline = imageTargets[targetObject].transform.GetChild(0);
+            outline.gameObject.SetActive(true);
+        }
+        else
+        {
+            Debug.Log("Component not found");
+        }        
     }
 
     public void ClearAllHighlights()

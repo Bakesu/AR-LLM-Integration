@@ -1,12 +1,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections;
-using System.Threading.Tasks;
 using TMPro;
-using Unity.VisualScripting;
-using Unity.XR.CoreUtils;
 using UnityEngine;
-using static Microsoft.MixedReality.GraphicsTools.Editor.MeasureToolSettings;
 
 
 public class FunctionCallHandler : MonoBehaviour
@@ -25,13 +21,16 @@ public class FunctionCallHandler : MonoBehaviour
 
     [SerializeField]
     TextMeshProUGUI promptAnswerText;
-    private bool imageRequestIsRunning = false;
+    // this flag is used in coroutine image requests to make sure everything is finished before showing to the user
+    internal bool followupimageRequestIsFinished = false;
+    internal Queue taskQueue = new Queue();
 
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
         objectHighlighter.HighlightLabels(extractedLabelData.Label);
         Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
         promptAnswerText.text = extractedLabelData.TextContent;
+        followupimageRequestIsFinished = true;
     }
 
     public void HighlightObjects(string componentName)
@@ -66,24 +65,25 @@ public class FunctionCallHandler : MonoBehaviour
     public void GiveInstructions(string FCArgument)
     {        
         InstructionsObject instructionsObject = JsonConvert.DeserializeObject<InstructionsObject>(FCArgument);       
-        objectHighlighter.HighlightObject(instructionsObject.placeableObject);
+        
         string labelPrompt = "Please provide the labels for the following object: " + instructionsObject.assemblingObject;
-        var imageAsPNG = hardcodedImage.EncodeToPNG();        
-        var labels = GetInstructionObjectLabel(labelPrompt, imageAsPNG);
-        while (imageRequestIsRunning)
-        {
-            
-        }
-        Debug.Log("task done " + labels);
-        //instructionsObject.placeableObject
-        Debug.Log("assemblingObject = " + instructionsObject.assemblingObject + "placeableObject = " + instructionsObject.placeableObject);        
+        var imageAsPNG = hardcodedImage.EncodeToPNG();
+
+        StartCoroutine(GetInstructionObjectLabel(labelPrompt, imageAsPNG, instructionsObject.assemblingObject, instructionsObject.placeableObject));
     }
 
-    public string GetInstructionObjectLabel(string labelPrompt, byte[] imageAsPNG)
+    public IEnumerator GetInstructionObjectLabel(string labelPrompt, byte[] imageAsPNG, string subject, string placeableObject)
     {
-        imageRequestIsRunning = true;
+        followupimageRequestIsFinished = false;
         requestHandler.CreateImageRequest(labelPrompt, imageAsPNG, true);
-        return "done";
+
+        yield return new WaitUntil(() => followupimageRequestIsFinished == true);
+        Debug.Log("draw arrow would be here");
+        //Labels are highlighted by the previous image request
+        objectHighlighter.HighlightObject(placeableObject);
         
+        //objectHighlighter.HighlightObject(placeableObject);
+
+
     }
 }

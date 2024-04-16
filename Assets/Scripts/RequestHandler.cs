@@ -34,6 +34,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private FunctionCallHandler functionCallHandler;
 
     private float temperature = 0.1f;
+    private int maxTokens = 50;
     private static object[] tools;
 
     private DebugWindow debugWindow;
@@ -48,7 +49,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     string defaultTextSystemPrompt;
     string labelSystemPrompt;
     string functionSystemPrompt;
-    internal bool imageRequestDone;
+    internal bool imageRequestDone;    
 
     public void Start()
     {
@@ -77,7 +78,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         These letters, from top to bottom, range from 'A' to 'E' in alphabetical order. Additionally, each column ends with a number. 
         These numbers, from left to right, range from '1' to '8' in numerical order. The labels are written in bold red letters and numbers 
         and encased in a blue square. If you consider the requested area as clipping between multiple labels or covers multiple labels please
-        provide all those labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
+        provide at MAX the four closest labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
         and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, 
         after the curly brackets, please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
 
@@ -108,12 +109,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         StartCoroutine(CreateGPTRequest(requestBody));        
     }
 
-    internal IEnumerator CreateRecursiveImageRequest(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
-    {
-        byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes, isWithLabels);
-        yield return CreateGPTRequest(requestBody);
-    }
-
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
     {
         if(isWithLabels)
@@ -132,7 +127,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         };
         //TODO: figure out what to do with image requests in messageList - image requests would break requests from the other type of body
         messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
+        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", maxTokens, temperature, messageList);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
         Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
@@ -147,7 +142,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             new TextContent(textPrompt)
         };
         messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new RequestDTO("gpt-4-turbo-preview", 50, temperature, messageList, tools);
+        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", maxTokens, temperature, messageList, tools);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
         Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
@@ -156,8 +151,8 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     internal IEnumerator CreateGPTRequest(byte[] requestBody)
     {
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
-        uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBody);
-        uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        uwr.uploadHandler = (UploadHandler) new UploadHandlerRaw(requestBody);
+        uwr.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
         uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
         //Send the request then wait here until it returns
@@ -206,7 +201,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 messageList.Add(new Message("assistant", message.content));
             }
 
-        }
+        }        
     }
 
     static object[] CreateTools()
@@ -218,7 +213,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 function = new
                 {
                     name = "HighlightObjects",
-                    description =  "Highlight the objects that the user mentions in their prompt",
+                    description =  "Highlight the objects that the user mentions in their prompt. Should be called to help locate objects",
                     parameters = new {
                         type = "object",
                         properties = new {
