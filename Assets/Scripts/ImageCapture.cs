@@ -51,10 +51,7 @@ public class ImageCapture : MonoBehaviour
     {
         Debug.Log("editor only code");
         yield return new WaitForEndOfFrame();
-        //targetTexture = new Texture2D(1920, 1080);
         targetTexture = ScreenCapture.CaptureScreenshotAsTexture();
-        //targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 1f, 1f);
-        //StartCoroutine(ShowImage(targetTexture));
         requestHandler.CreateImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG(), false);
     }
 
@@ -103,13 +100,12 @@ public class ImageCapture : MonoBehaviour
             // Create a texture and copy the photo capture's result into the texture
             targetTexture = new Texture2D(1920, 1080);
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
-            targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 0.5f, 0.1f);
+            //targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 0.5f, 0.1f);
             var imageAsPNG = targetTexture.EncodeToPNG();
             
             //Use the device portal to get the image from the hololens. 
             string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
             File.WriteAllBytes(filePath, imageAsPNG);
-
             requestHandler.CreateImageRequest(speechInput.dictationResult, imageAsPNG, false);
             StartCoroutine(ShowImage(targetTexture));
         }
@@ -119,6 +115,7 @@ public class ImageCapture : MonoBehaviour
         }
 
         // Deactivate the camera
+        // Potentially a bad idea to deactivate the camera here as it will be reactivated in the next call to CaptureImageAndSendIt
         photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
     }
 
@@ -128,7 +125,7 @@ public class ImageCapture : MonoBehaviour
         screenshotObject.gameObject.SetActive(true);
         yield return new WaitForSeconds(2);
         //set to false if we want to hide the image after a few seconds
-        screenshotObject.gameObject.SetActive(true);
+        //screenshotObject.gameObject.SetActive(false);
     }
 
 

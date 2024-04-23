@@ -1,6 +1,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -17,20 +21,28 @@ public class FunctionCallHandler : MonoBehaviour
     private RequestHandler requestHandler;
 
     [SerializeField]
+    private SpeechOutput speechOutput;
+    [SerializeField]
     internal Texture2D hardcodedImage;
 
     [SerializeField]
     TextMeshProUGUI promptAnswerText;
     // this flag is used in coroutine image requests to make sure everything is finished before showing to the user
-    internal bool followupimageRequestIsFinished = false;
-    internal Queue taskQueue = new Queue();
+    internal byte[] imageAsPNG;
+    private List<string> labelList;
+
+    private void Start()
+    {
+        imageAsPNG = hardcodedImage.EncodeToPNG();   
+    }
 
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
         objectHighlighter.HighlightLabels(extractedLabelData.Label);
-        Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
-        promptAnswerText.text = extractedLabelData.TextContent;
-        followupimageRequestIsFinished = true;
+        UnityEngine.Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
+        //promptAnswerText.text = extractedLabelData.TextContent;
+        //labelList = extractedLabelData.Label;
+        speechOutput.TextToSpeech(extractedLabelData.TextContent);
     }
 
     public void HighlightObjects(string componentName)
@@ -43,7 +55,7 @@ public class FunctionCallHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log("Component not found");
+            UnityEngine.Debug.Log("Component not found");
         }
         //string[] labels = parameters.Split(',');
         //objectHighlighter.highlightObject();
@@ -52,38 +64,33 @@ public class FunctionCallHandler : MonoBehaviour
     public void TextualAnswer(string FCArgument)
     {
         var answer = DataUtility.ExtractFunctionArgumentsFromFCString(FCArgument);
-        promptAnswerText.text = answer;
+        speechOutput.TextToSpeech(answer);
+        //promptAnswerText.text = answer;
     }
 
     public void CaptureImage(string FCArgument)
     {
-        Debug.Log("CaptureImage was called: ");
+        UnityEngine.Debug.Log("CaptureImage was called: ");
         imageCapture.CaptureImageAndSendIt();
         //TODO: test on headset
     }
 
     public void GiveInstructions(string FCArgument)
-    {        
+    {
         InstructionsObject instructionsObject = JsonConvert.DeserializeObject<InstructionsObject>(FCArgument);       
-        
-        string labelPrompt = "Please provide the labels for the following object: " + instructionsObject.assemblingObject;
-        var imageAsPNG = hardcodedImage.EncodeToPNG();
-
-        StartCoroutine(GetInstructionObjectLabel(labelPrompt, imageAsPNG, instructionsObject.assemblingObject, instructionsObject.placeableObject));
+              
+        StartCoroutine(DrawRelation(instructionsObject.assemblingObject, instructionsObject.placeableObject));
     }
 
-    public IEnumerator GetInstructionObjectLabel(string labelPrompt, byte[] imageAsPNG, string subject, string placeableObject)
+    public IEnumerator DrawRelation(string subject, string placeableObject)
     {
-        followupimageRequestIsFinished = false;
+        string labelPrompt = "Please provide the labels for the following object: " + subject;
         requestHandler.CreateImageRequest(labelPrompt, imageAsPNG, true);
 
-        yield return new WaitUntil(() => followupimageRequestIsFinished == true);
-        Debug.Log("draw arrow would be here");
-        //Labels are highlighted by the previous image request
+        yield return new WaitForSeconds(4);
+        //Highlight objects, relevant labels and create an arrow between them - createimagerequest makes the call to highlight labels
+        //TODO - How do we get the labels and use them for the arrow?
+        objectHighlighter.CreateArrowObject(subject, placeableObject);        
         objectHighlighter.HighlightObject(placeableObject);
-        
-        //objectHighlighter.HighlightObject(placeableObject);
-
-
     }
 }
