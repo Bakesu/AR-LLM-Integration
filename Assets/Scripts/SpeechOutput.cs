@@ -13,7 +13,7 @@ public class SpeechOutput : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI promptAnswerText;
 
-    string systemResponse;
+    string systemResponse = "I'm listening";
     // Start is called before the first frame update
     private void Start()
     {
@@ -37,7 +37,6 @@ public class SpeechOutput : MonoBehaviour
 
     public void OnDictation()
     {        
-        systemResponse = "I'm listening";
         textToSpeechSubsystem.TrySpeak(systemResponse, audioSource);
         promptAnswerText.text = systemResponse;
 

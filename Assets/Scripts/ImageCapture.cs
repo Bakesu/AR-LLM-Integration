@@ -8,6 +8,7 @@ using System.Collections;
 using GLTFast.Schema;
 using UnityEngine.UIElements;
 using Unity.VisualScripting;
+using Vuforia;
 
 public class ImageCapture : MonoBehaviour
 {
@@ -19,13 +20,15 @@ public class ImageCapture : MonoBehaviour
     internal PhotoCapture photoCaptureObject;
     private SpeechInput speechInput;    
     private ImageMerger imageMerger;
-
     private Texture2D targetTexture;
 
     private void Start()
     {
         imageMerger = gameObject.GetComponent<ImageMerger>();
         speechInput = gameObject.GetComponent<SpeechInput>();
+        //Get the vuforia instance and disable image tracking
+
+
     }
     public void CaptureImageAndSendIt()
     {
@@ -49,7 +52,6 @@ public class ImageCapture : MonoBehaviour
      */
     IEnumerator TakeScreenshotAndSendIt()
     {
-        Debug.Log("editor only code");
         yield return new WaitForEndOfFrame();
         targetTexture = ScreenCapture.CaptureScreenshotAsTexture();
         requestHandler.CreateImageRequest(speechInput.dictationResult, targetTexture.EncodeToPNG(), false);
@@ -115,7 +117,6 @@ public class ImageCapture : MonoBehaviour
         }
 
         // Deactivate the camera
-        // Potentially a bad idea to deactivate the camera here as it will be reactivated in the next call to CaptureImageAndSendIt
         photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
     }
 
@@ -131,8 +132,12 @@ public class ImageCapture : MonoBehaviour
 
     void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
     {
+        Debug.Log("photo mode stopped");
+        Debug.Log(VuforiaRuntimeUtilities.IsVuforiaEnabled());        
         // Shutdown the photo capture resource
         photoCaptureObject.Dispose();
         photoCaptureObject = null;
+        Debug.Log("after dispose");
+        Debug.Log(VuforiaRuntimeUtilities.IsVuforiaEnabled());
     }
 }

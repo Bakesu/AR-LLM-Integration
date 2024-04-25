@@ -12,6 +12,7 @@ using Chat;
 using MixedReality.Toolkit.Subsystems;
 using ChatAndImage;
 using Tool = Chat.Tool;
+using Vuforia;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
@@ -31,6 +32,10 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     [SerializeField]
     private SpeechOutput speechOutput;
 
+    [SerializeField]
+    private ImageCapture imageCapture;
+
+
     private float temperature = 0.1f;
     private int maxTokens = 50;
     private static object[] tools;
@@ -47,7 +52,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     string defaultTextSystemPrompt;
     string labelSystemPrompt;
     string functionSystemPrompt;
-    internal bool imageRequestDone;    
+    internal bool imageRequestDone;
 
     public void Start()
     {
@@ -197,11 +202,19 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             else
             {
                 //TODO: This might have to change
-                //promptAnswerText.text = message.content;    
+                //promptAnswerText.text = message.content;
+                Debug.Log("image prompt text to speech");
                 speechOutput.TextToSpeech(message.content);
                 messageList.Add(new Message("assistant", message.content));
             }
-
+            if (imageCapture.photoCaptureObject != null)
+            {
+                Debug.Log("Disposing of old photoCaptureObject");
+                imageCapture.photoCaptureObject.Dispose();
+                imageCapture.photoCaptureObject = null;
+            }
+            Debug.Log("image request done, did we dispose?");
+            VuforiaBehaviour.Instance.enabled = true;
         }
         yield return "done";
     }

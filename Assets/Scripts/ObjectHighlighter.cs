@@ -109,7 +109,7 @@ public class ObjectHighlighter : MonoBehaviour
         lineRenderer.SetPosition(0, imageTargets[from].transform.position);
         lineRenderer.SetPosition(1, imageTargets[to].transform.position);
         fromObject = imageTargets[from];
-        toObject = imageTargets[to];
+        toObject = imageTargets[to].transform.GetChild(0).gameObject;
         //CalculateArrowEnd(toLabelList);
         isLineRendererActive = true;
 
@@ -159,7 +159,7 @@ public class ObjectHighlighter : MonoBehaviour
     {
         foreach (var imageTarget in imageTargets)
         {
-            var outline = imageTarget.Value.transform.GetChild(0);
+            var outline = imageTarget.Value.transform.GetChild(1);
             outline.gameObject.SetActive(false);
         }
     }

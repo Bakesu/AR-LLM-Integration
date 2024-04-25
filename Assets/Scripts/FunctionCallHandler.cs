@@ -2,11 +2,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using Vuforia;
 
 
 public class FunctionCallHandler : MonoBehaviour
@@ -70,7 +68,8 @@ public class FunctionCallHandler : MonoBehaviour
 
     public void CaptureImage(string FCArgument)
     {
-        UnityEngine.Debug.Log("CaptureImage was called: ");
+        Debug.Log("CaptureImage was called: ");
+        VuforiaBehaviour.Instance.enabled = false;
         imageCapture.CaptureImageAndSendIt();
         //TODO: test on headset
     }

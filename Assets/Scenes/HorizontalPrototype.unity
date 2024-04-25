@@ -1413,13 +1413,13 @@ MonoBehaviour:
   OnTargetFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 223974231}
-        m_TargetAssemblyTypeName: TrackingNotifier, Assembly-CSharp
-        m_MethodName: OnTrackingFound
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2047,6 +2047,10 @@ PrefabInstance:
       propertyPath: aiController
       value: 
       objectReference: {fileID: 1844227303}
+    - target: {fileID: 7544758226182721469, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
+      propertyPath: imageCapture
+      value: 
+      objectReference: {fileID: 1398181243}
     - target: {fileID: 7544758226182721469, guid: 8886a94197bcecb4d98da754739fa80d, type: 3}
       propertyPath: promptButton
       value: 
@@ -8634,13 +8638,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7922148448950530248, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
+      propertyPath: promptAnswerText
+      value: 
+      objectReference: {fileID: 2123552186}
+    - target: {fileID: 7922148448950530248, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
       propertyPath: objectHighlighter
       value: 
       objectReference: {fileID: 853749325}
     - target: {fileID: 7922148448950530248, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
       propertyPath: keywordRecognition
       value: 
-      objectReference: {fileID: 1398181244}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8648,9 +8656,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6542763523733335819, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1398181240}
-    - targetCorrespondingSourceObject: {fileID: 6542763523733335819, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1398181244}
   m_SourcePrefab: {fileID: 100100000, guid: 87fdca787a820eb4a8e748e461acf101, type: 3}
 --- !u!114 &1398181237 stripped
 MonoBehaviour:
@@ -8690,18 +8695,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05d99ad16c60ad942a82ac3826f7fd2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1398181244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 154885696}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 772f2b7fc6151a445a7e5fdc0c1d7807, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1408638303
