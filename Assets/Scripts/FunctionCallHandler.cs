@@ -31,7 +31,7 @@ public class FunctionCallHandler : MonoBehaviour
 
     private void Start()
     {
-        imageAsPNG = hardcodedImage.EncodeToPNG();   
+        imageAsPNG = hardcodedImage.EncodeToPNG();
     }
 
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
@@ -68,9 +68,8 @@ public class FunctionCallHandler : MonoBehaviour
 
     public void CaptureImage(string FCArgument)
     {
-        Debug.Log("CaptureImage was called: ");
-        VuforiaBehaviour.Instance.enabled = false;
-        imageCapture.CaptureImageAndSendIt();
+        Debug.Log("CaptureImage called");        
+        StartCoroutine(imageCapture.CaptureImageAndSendIt());
         //TODO: test on headset
     }
 

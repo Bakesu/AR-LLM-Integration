@@ -140,7 +140,7 @@ public class ObjectHighlighter : MonoBehaviour
     public IEnumerator ClearAllHighlights()
     {
         ClearLabelHighlights();
-        ClearObjectHighlights();
+        //ClearObjectHighlights();
         RemoveLineRenderer();
         yield return "";
     }
@@ -159,7 +159,7 @@ public class ObjectHighlighter : MonoBehaviour
     {
         foreach (var imageTarget in imageTargets)
         {
-            var outline = imageTarget.Value.transform.GetChild(1);
+            var outline = imageTarget.Value.transform.GetChild(0);
             outline.gameObject.SetActive(false);
         }
     }

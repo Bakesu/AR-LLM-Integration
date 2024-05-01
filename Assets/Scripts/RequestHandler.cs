@@ -13,6 +13,7 @@ using MixedReality.Toolkit.Subsystems;
 using ChatAndImage;
 using Tool = Chat.Tool;
 using Vuforia;
+using UnityEngine.SceneManagement;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
@@ -167,7 +168,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         else
         {
             string result = uwr.downloadHandler.text;
-            Debug.Log(result);
+            //Debug.Log(result);
             ChatResDTO resultAsObject = JsonConvert.DeserializeObject<ChatResDTO>(result);
             StartCoroutine(HandleGPTResponse(resultAsObject));
         }
@@ -202,19 +203,17 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             else
             {
                 //TODO: This might have to change
-                //promptAnswerText.text = message.content;
-                Debug.Log("image prompt text to speech");
-                speechOutput.TextToSpeech(message.content);
+                //Debug.Log("image prompt text to speech");
+                speechOutput.TextToSpeech(message.content);                
                 messageList.Add(new Message("assistant", message.content));
-            }
-            if (imageCapture.photoCaptureObject != null)
-            {
-                Debug.Log("Disposing of old photoCaptureObject");
-                imageCapture.photoCaptureObject.Dispose();
-                imageCapture.photoCaptureObject = null;
-            }
-            Debug.Log("image request done, did we dispose?");
-            VuforiaBehaviour.Instance.enabled = true;
+
+                if (imageCapture.photoCaptureObject != null)
+                {
+                    Debug.Log("Disposing of old photoCaptureObject");
+                    imageCapture.photoCaptureObject.Dispose();
+                    imageCapture.photoCaptureObject = null;
+                }                
+            }            
         }
         yield return "done";
     }

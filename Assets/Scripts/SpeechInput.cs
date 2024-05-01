@@ -46,14 +46,17 @@ public class SpeechInput : MonoBehaviour
         imageCapture = GetComponentInParent<ImageCapture>();
 
         // Get the first running dictation subsystem.
-        keywordRecognitionSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<KeywordRecognitionSubsystem>();
         dictationSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<DictationSubsystem>();
+        
+        keywordRecognitionSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<KeywordRecognitionSubsystem>();
+        
 
-        if (keywordRecognitionSubsystem != null)
-        {
-            keywordRecognitionSubsystem.CreateOrGetEventForKeyword("Hey").AddListener(() => SwitchToDictation());
-            Debug.Log("keyword system is running = " + keywordRecognitionSubsystem.running);
-        }
+
+        //if (keywordRecognitionSubsystem != null)
+        //{
+        //    keywordRecognitionSubsystem.CreateOrGetEventForKeyword("Hey Assistant").AddListener(() => SwitchToDictation());
+        //    Debug.Log("keyword system is running = " + keywordRecognitionSubsystem.running);
+        //}
 
         if (dictationSubsystem != null)
         {
@@ -67,14 +70,6 @@ public class SpeechInput : MonoBehaviour
         dictationSubsystem.Stop();
     }
 
-    private void OnDisable()
-    {
-        keywordRecognitionSubsystem.Stop();
-        dictationSubsystem.Stop();
-        dictationSubsystem.Recognizing -= Dictation_Recognizing;
-        dictationSubsystem.Recognized -= Dictation_Recognized;
-        dictationSubsystem.RecognitionFaulted -= Dictation_RecognitionFaulted;
-    }
     private void Dictation_RecognitionFaulted(DictationSessionEventArgs args)
     {
         Debug.Log(args.ReasonString);
@@ -95,7 +90,7 @@ public class SpeechInput : MonoBehaviour
         dictationSubsystem.StopDictation();
         Debug.Log("Sending prompt:" + "'" + args.Result + "'");
         requestHandler.CreateFunctionCallRequest(dictationResult);
-        StartCoroutine(SwitchToKeywordRecognition());
+        //StartCoroutine(SwitchToKeywordRecognition());
 
         //If photocapture is set, we want to pull it down before creating a new one
         //if (imageCapture.photoCaptureObject != null)
@@ -127,12 +122,14 @@ public class SpeechInput : MonoBehaviour
 
     public void StartDictation()
     {
+        //keywordRecognitionSubsystem.Stop();
+        //dictationSubsystem.Start();
         StopAllCoroutines();
         debugWindow.Clear();
-        speechOutput.OnDictation();
-        dictationSubsystem.StartDictation();
+        //speechOutput.OnDictation();
+        //dictationSubsystem.StartDictation();
 
-        //HardCodedPrompt();
+        HardCodedPrompt();
     }
 
 
@@ -148,7 +145,7 @@ public class SpeechInput : MonoBehaviour
     public void SwitchToDictation()
     {
         Debug.Log("SwitchToDictation");
-        keywordRecognitionSubsystem.Stop();
+        //keywordRecognitionSubsystem.Stop();
 
         dictationSubsystem.Start();
         StartDictation();
@@ -158,7 +155,7 @@ public class SpeechInput : MonoBehaviour
     private void HardCodedPrompt()
     {
         StartCoroutine(objectHighlighter.ClearAllHighlights());
-        var hardcodedPrompt = "Where should the CPU be placed on the motherboard?";
+        var hardcodedPrompt = "What am I looking at?";
         dictationResult = hardcodedPrompt;
         requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
     }

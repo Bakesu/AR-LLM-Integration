@@ -9,6 +9,7 @@ using GLTFast.Schema;
 using UnityEngine.UIElements;
 using Unity.VisualScripting;
 using Vuforia;
+using UnityEngine.SceneManagement;
 
 public class ImageCapture : MonoBehaviour
 {
@@ -22,15 +23,16 @@ public class ImageCapture : MonoBehaviour
     private ImageMerger imageMerger;
     private Texture2D targetTexture;
 
+
     private void Start()
     {
         imageMerger = gameObject.GetComponent<ImageMerger>();
         speechInput = gameObject.GetComponent<SpeechInput>();
-        //Get the vuforia instance and disable image tracking
-
-
     }
-    public void CaptureImageAndSendIt()
+
+
+
+    public IEnumerator CaptureImageAndSendIt()
     {
 
         if (Application.platform == RuntimePlatform.WindowsEditor)
@@ -40,11 +42,14 @@ public class ImageCapture : MonoBehaviour
         }
         else
         {
-            //Debug.Log("If this shows on Hololens, we are in the correct statement");
+            Debug.Log("Capture Image");
+            
             // Create a PhotoCapture object
+
             PhotoCapture.CreateAsync(true, OnPhotoCaptureCreated);
 
         }
+        yield return null;
     }
 
     /**
@@ -67,7 +72,7 @@ public class ImageCapture : MonoBehaviour
         cameraParameters.hologramOpacity = 0.5f;
         cameraParameters.cameraResolutionWidth = 1920;
         cameraParameters.cameraResolutionHeight = 1080;
-        cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
+        cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;        
 
         // Activate the camera
         captureObject.StartPhotoModeAsync(cameraParameters, OnPhotoModeStarted);
@@ -102,7 +107,6 @@ public class ImageCapture : MonoBehaviour
             // Create a texture and copy the photo capture's result into the texture
             targetTexture = new Texture2D(1920, 1080);
             photoCaptureFrame.UploadImageDataToTexture(targetTexture);
-            //targetTexture = imageMerger.ApplyGridOnImage(targetTexture, 0.5f, 0.1f);
             var imageAsPNG = targetTexture.EncodeToPNG();
             
             //Use the device portal to get the image from the hololens. 
@@ -110,14 +114,14 @@ public class ImageCapture : MonoBehaviour
             File.WriteAllBytes(filePath, imageAsPNG);
             requestHandler.CreateImageRequest(speechInput.dictationResult, imageAsPNG, false);
             StartCoroutine(ShowImage(targetTexture));
+            // Deactivate the camera
+            photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
         }
         else
         {
             Debug.LogError("Failed to capture photo to memory.");
         }
-
-        // Deactivate the camera
-        photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
+        
     }
 
     private IEnumerator ShowImage(Texture2D target)
@@ -132,12 +136,8 @@ public class ImageCapture : MonoBehaviour
 
     void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
     {
-        Debug.Log("photo mode stopped");
-        Debug.Log(VuforiaRuntimeUtilities.IsVuforiaEnabled());        
         // Shutdown the photo capture resource
         photoCaptureObject.Dispose();
-        photoCaptureObject = null;
-        Debug.Log("after dispose");
-        Debug.Log(VuforiaRuntimeUtilities.IsVuforiaEnabled());
+        photoCaptureObject = null;        
     }
 }
