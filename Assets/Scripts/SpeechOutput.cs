@@ -29,14 +29,21 @@ public class SpeechOutput : MonoBehaviour
         {
             Debug.LogError("No TextToSpeechSubsystem found");
         }
+        var textToSpeechString = PlayerPrefs.GetString("texttospeech");
+        if (textToSpeechString != "" || textToSpeechString != null)
+        {
+            textToSpeechSubsystem.TrySpeak(textToSpeechString, audioSource);
+            promptAnswerText.text = textToSpeechString;
+            PlayerPrefs.DeleteKey("texttospeech");
+        }
+
     }
 
-    public void TextToSpeech(string recievedText)
+    public void ReloadSceneAndTextToSpeech(string recievedText)
     {
-        Debug.Log("kaldt");
-        textToSpeechSubsystem.TrySpeak(recievedText, audioSource);
-        promptAnswerText.text = recievedText;
-        
+        PlayerPrefs.SetString("texttospeech", recievedText);
+        VuforiaApplication.Instance.Initialize();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void StopCurrentSentence()

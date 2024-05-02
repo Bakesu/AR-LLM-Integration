@@ -34,6 +34,7 @@ public class ImageCapture : MonoBehaviour
 
     public IEnumerator CaptureImageAndSendIt()
     {
+        VuforiaApplication.Instance.Deinit();
 
         if (Application.platform == RuntimePlatform.WindowsEditor)
         {

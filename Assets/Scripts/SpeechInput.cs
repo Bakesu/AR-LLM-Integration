@@ -36,7 +36,6 @@ public class SpeechInput : MonoBehaviour
     Texture2D hardcodedImage;
 
     ImageCapture imageCapture;
-    private KeywordRecognitionSubsystem keywordRecognitionSubsystem;
 
     internal string dictationResult;
 
@@ -47,16 +46,8 @@ public class SpeechInput : MonoBehaviour
 
         // Get the first running dictation subsystem.
         dictationSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<DictationSubsystem>();
-        
-        keywordRecognitionSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<KeywordRecognitionSubsystem>();
-        
-
-
-        //if (keywordRecognitionSubsystem != null)
-        //{
-        //    keywordRecognitionSubsystem.CreateOrGetEventForKeyword("Hey Assistant").AddListener(() => SwitchToDictation());
-        //    Debug.Log("keyword system is running = " + keywordRecognitionSubsystem.running);
-        //}
+       
+       
 
         if (dictationSubsystem != null)
         {
@@ -67,7 +58,7 @@ public class SpeechInput : MonoBehaviour
             dictationSubsystem.RecognitionFaulted += Dictation_RecognitionFaulted;
             Debug.Log("Dictation system is running = " + dictationSubsystem.running);
         }
-        dictationSubsystem.Stop();
+        //dictationSubsystem.Stop();
     }
 
     private void Dictation_RecognitionFaulted(DictationSessionEventArgs args)
@@ -122,35 +113,13 @@ public class SpeechInput : MonoBehaviour
 
     public void StartDictation()
     {
-        //keywordRecognitionSubsystem.Stop();
-        //dictationSubsystem.Start();
         StopAllCoroutines();
         debugWindow.Clear();
-        //speechOutput.OnDictation();
-        //dictationSubsystem.StartDictation();
+        speechOutput.OnDictation();
+        dictationSubsystem.StartDictation();
 
-        HardCodedPrompt();
+        //HardCodedPrompt();
     }
-
-
-    private IEnumerator SwitchToKeywordRecognition()
-    {
-        yield return new WaitForSeconds(0.5f);
-        dictationSubsystem.Stop();
-
-        keywordRecognitionSubsystem.Start();
-        Debug.Log("Switched to KeywordRecognition");
-    }
-
-    public void SwitchToDictation()
-    {
-        Debug.Log("SwitchToDictation");
-        //keywordRecognitionSubsystem.Stop();
-
-        dictationSubsystem.Start();
-        StartDictation();
-    }
-
 
     private void HardCodedPrompt()
     {

@@ -10,6 +10,7 @@ Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\ARM\lib_bur
 --assembly-defines=Assembly-CSharp;
 --assembly-defines=Microsoft.MixedReality.GraphicsTools;
 --assembly-defines=Microsoft.MixedReality.OpenXR;
+--assembly-defines=Microsoft.MixedReality.VisualProfiler;
 --assembly-defines=MixedReality.Toolkit.Accessibility;
 --assembly-defines=MixedReality.Toolkit.Core;
 --assembly-defines=MixedReality.Toolkit.Diagnostics;

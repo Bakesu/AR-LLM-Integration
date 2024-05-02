@@ -9,7 +9,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using Chat;
-using MixedReality.Toolkit.Subsystems;
 using ChatAndImage;
 using Tool = Chat.Tool;
 using Vuforia;
@@ -204,7 +203,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             {
                 //TODO: This might have to change
                 //Debug.Log("image prompt text to speech");
-                speechOutput.TextToSpeech(message.content);                
+                speechOutput.ReloadSceneAndTextToSpeech(message.content);                
                 messageList.Add(new Message("assistant", message.content));
 
                 if (imageCapture.photoCaptureObject != null)

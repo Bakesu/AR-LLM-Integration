@@ -40,7 +40,7 @@ public class FunctionCallHandler : MonoBehaviour
         UnityEngine.Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
         //promptAnswerText.text = extractedLabelData.TextContent;
         //labelList = extractedLabelData.Label;
-        speechOutput.TextToSpeech(extractedLabelData.TextContent);
+        speechOutput.ReloadSceneAndTextToSpeech(extractedLabelData.TextContent);
     }
 
     public void HighlightObjects(string componentName)
@@ -62,7 +62,7 @@ public class FunctionCallHandler : MonoBehaviour
     public void TextualAnswer(string FCArgument)
     {
         var answer = DataUtility.ExtractFunctionArgumentsFromFCString(FCArgument);
-        speechOutput.TextToSpeech(answer);
+        speechOutput.ReloadSceneAndTextToSpeech(answer);
         //promptAnswerText.text = answer;
     }
 
