@@ -13,10 +13,12 @@ public class ObjectHighlighter : MonoBehaviour
     public Material transparentMaterial;
     [SerializeField]
     public Material highlightMaterial;
+    [SerializeField]
+    public GameObject MBCenter;
 
     internal Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
 
-    private List<GameObject> highlightedObjects = new List<GameObject>();
+    private List<GameObject> highlightedLabels = new List<GameObject>();
 
     private LineRenderer lineRenderer = null;
     private GameObject fromObject;
@@ -34,11 +36,9 @@ public class ObjectHighlighter : MonoBehaviour
     }
 
     private void Update()
-    {        
+    {
         if (isLineRendererActive)
         {
-            //Debug.Log("from" + fromObject + " pos " + toObject.transform.position);
-            //Debug.Log("to " + toObject + " pos " + toObject.transform.position);
             lineRenderer = GameObject.Find("Arrow").GetComponent<LineRenderer>();
 
 
@@ -75,8 +75,8 @@ public class ObjectHighlighter : MonoBehaviour
             GameObject highlightObject = GameObject.Find(labelName);
 
             if (highlightObject == null) continue;
-            highlightObject.GetComponent<MeshRenderer>().material = highlightMaterial;
-            highlightedObjects.Add(highlightObject);
+            highlightObject.GetComponent<MeshRenderer>().material = highlightMaterial;            
+            highlightedLabels.Add(highlightObject);
         }
     }
 
@@ -108,8 +108,13 @@ public class ObjectHighlighter : MonoBehaviour
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, imageTargets[from].transform.position);
         lineRenderer.SetPosition(1, imageTargets[to].transform.position);
+
         fromObject = imageTargets[from];
-        toObject = imageTargets[to].transform.GetChild(0).gameObject;
+        toObject = imageTargets[to];
+        if(toObject.name == "Motherboard")
+        {
+            toObject = MBCenter;
+        }
         //CalculateArrowEnd(toLabelList);
         isLineRendererActive = true;
 
@@ -147,11 +152,11 @@ public class ObjectHighlighter : MonoBehaviour
 
     public void ClearLabelHighlights()
     {
-        foreach (var highlightedObject in highlightedObjects)
+        foreach (var highlightedObject in highlightedLabels)
         {
             highlightedObject.GetComponent<MeshRenderer>().material = transparentMaterial;
         }
-        highlightedObjects.Clear();
+        highlightedLabels.Clear();
     }
 
 

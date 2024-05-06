@@ -46,8 +46,9 @@ public class SpeechInput : MonoBehaviour
 
         // Get the first running dictation subsystem.
         dictationSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<DictationSubsystem>();
-       
-       
+        var keywordSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<KeywordRecognitionSubsystem>();
+        keywordSubsystem.Stop();
+        dictationSubsystem.Start();
 
         if (dictationSubsystem != null)
         {
@@ -115,6 +116,7 @@ public class SpeechInput : MonoBehaviour
     {
         StopAllCoroutines();
         debugWindow.Clear();
+
         speechOutput.OnDictation();
         dictationSubsystem.StartDictation();
 
@@ -124,7 +126,7 @@ public class SpeechInput : MonoBehaviour
     private void HardCodedPrompt()
     {
         StartCoroutine(objectHighlighter.ClearAllHighlights());
-        var hardcodedPrompt = "What am I looking at?";
+        var hardcodedPrompt = "Where should the CPU be placed on the Motherboard?";
         dictationResult = hardcodedPrompt;
         requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
     }

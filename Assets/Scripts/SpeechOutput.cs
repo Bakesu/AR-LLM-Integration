@@ -46,6 +46,12 @@ public class SpeechOutput : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    public void OnSpeak(string text)
+    {
+        textToSpeechSubsystem.TrySpeak(text, audioSource);
+        promptAnswerText.text = text;
+    }
+
     public void StopCurrentSentence()
     {
         textToSpeechSubsystem.TrySpeak(string.Empty, audioSource);
