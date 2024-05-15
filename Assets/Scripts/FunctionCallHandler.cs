@@ -37,7 +37,7 @@ public class FunctionCallHandler : MonoBehaviour
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
         objectHighlighter.HighlightLabels(extractedLabelData.Label);
-        UnityEngine.Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
+        Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
         //promptAnswerText.text = extractedLabelData.TextContent;
         //labelList = extractedLabelData.Label;
         speechOutput.OnSpeak(extractedLabelData.TextContent);
@@ -53,7 +53,7 @@ public class FunctionCallHandler : MonoBehaviour
         }
         else
         {
-            UnityEngine.Debug.Log("Component not found");
+            Debug.Log("Component not found");
         }
         //string[] labels = parameters.Split(',');
         //objectHighlighter.highlightObject();
