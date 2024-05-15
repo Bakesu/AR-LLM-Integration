@@ -118,6 +118,7 @@ public class SpeechInput : MonoBehaviour
         debugWindow.Clear();
 
         speechOutput.OnDictation();
+        dictationSubsystem.Start();
         dictationSubsystem.StartDictation();
 
         //HardCodedPrompt();

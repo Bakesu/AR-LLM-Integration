@@ -145,7 +145,7 @@ public class ObjectHighlighter : MonoBehaviour
     public IEnumerator ClearAllHighlights()
     {
         ClearLabelHighlights();
-        //ClearObjectHighlights();
+        ClearObjectHighlights();
         RemoveLineRenderer();
         yield return "";
     }
