@@ -46,8 +46,6 @@ public class SpeechInput : MonoBehaviour
 
         // Get the first running dictation subsystem.
         dictationSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<DictationSubsystem>();
-        var keywordSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<KeywordRecognitionSubsystem>();
-        keywordSubsystem.Stop();
         dictationSubsystem.Start();
 
         if (dictationSubsystem != null)
