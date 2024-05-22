@@ -98,7 +98,13 @@ public class ObjectHighlighter : MonoBehaviour
 
     internal void HighlightCPUSocket()
     {
+        CpuSlotObject.gameObject.SetActive(true);
         CpuSlotObject.gameObject.GetComponent<MeshRenderer>().material = highlightMaterial;
+    }
+
+    internal void RemoveHighlightFromSocket()
+    {        
+        CpuSlotObject.gameObject.SetActive(false);
     }
 
     public void CreateArrowObject(string from, string to)

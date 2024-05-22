@@ -73,23 +73,15 @@ public class SpeechInput : MonoBehaviour
 
     private void Dictation_Recognized(DictationResultEventArgs args)
     {
-        StartCoroutine(objectHighlighter.ClearAllHighlights());
+        objectHighlighter.ClearAllKeyboardHighlights();
         debugWindow.Clear();
 
         dictationResult = args.Result + "?";
         dictationSubsystem.StopDictation();
         speechOutput.OnSpeak("Sending prompt");
         //Debug.Log("Sending prompt:" + "'" + args.Result + "'");
-        StartCoroutine(imageCapture.CaptureImageAndSendIt());
-        //StartCoroutine(SwitchToKeywordRecognition());
+        imageCapture.CaptureImageAndSendIt();
 
-        //If photocapture is set, we want to pull it down before creating a new one
-        //if (imageCapture.photoCaptureObject != null)
-        //{
-        //    Debug.Log("Disposing of old photoCaptureObject");
-        //    imageCapture.photoCaptureObject.Dispose();
-        //    imageCapture.photoCaptureObject = null;
-        //}
     }
 
 
@@ -116,9 +108,9 @@ public class SpeechInput : MonoBehaviour
         StopAllCoroutines();
         debugWindow.Clear();
 
-        dictationSubsystem.StartDictation();
         speechOutput.OnDictation();
-        //dictationSubsystem.Start();
+        dictationSubsystem.StartDictation();
+        dictationSubsystem.Start();
 
         //HardCodedPrompt();
     }
