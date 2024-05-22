@@ -114,7 +114,7 @@ public class ImageCapture : MonoBehaviour
             string filePath = Path.Combine(Application.persistentDataPath, "capturedImage.png");
             File.WriteAllBytes(filePath, imageAsPNG);
             requestHandler.CreateImageRequest(speechInput.dictationResult, imageAsPNG, false);
-            StartCoroutine(ShowImage(targetTexture));
+            //StartCoroutine(ShowImage(targetTexture));
             // Deactivate the camera
             photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
         }

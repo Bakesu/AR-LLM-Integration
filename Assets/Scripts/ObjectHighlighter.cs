@@ -14,7 +14,7 @@ public class ObjectHighlighter : MonoBehaviour
     [SerializeField]
     public Material highlightMaterial;
     [SerializeField]
-    public GameObject MBCenter;
+    public GameObject CpuSlotObject;
 
     internal Dictionary<string, GameObject> imageTargets = new Dictionary<string, GameObject>();
 
@@ -96,15 +96,20 @@ public class ObjectHighlighter : MonoBehaviour
         }
     }
 
+    internal void HighlightCPUSocket()
+    {
+        CpuSlotObject.gameObject.GetComponent<MeshRenderer>().material = highlightMaterial;
+    }
+
     public void CreateArrowObject(string from, string to)
     {
         LineRenderer lineRenderer = new GameObject("Arrow").AddComponent<LineRenderer>();
         lineRenderer.gameObject.tag = "Highlight";
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startWidth = 0.001f;
-        lineRenderer.endWidth = 0.001f;
-        lineRenderer.startColor = Color.red;
-        lineRenderer.endColor = Color.red;
+        lineRenderer.startWidth = 0.0025f;
+        lineRenderer.endWidth = 0.0025f;
+        lineRenderer.startColor = Color.blue;
+        lineRenderer.endColor = Color.blue;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, imageTargets[from].transform.position);
         lineRenderer.SetPosition(1, imageTargets[to].transform.position);
@@ -113,7 +118,7 @@ public class ObjectHighlighter : MonoBehaviour
         toObject = imageTargets[to];
         if(toObject.name == "Motherboard")
         {
-            toObject = MBCenter;
+            toObject = CpuSlotObject;
         }
         //CalculateArrowEnd(toLabelList);
         isLineRendererActive = true;
@@ -149,7 +154,12 @@ public class ObjectHighlighter : MonoBehaviour
         RemoveLineRenderer();
         yield return "";
     }
-
+    public void ClearAllKeyboardHighlights()
+    {
+        ClearLabelHighlights();
+        ClearObjectHighlights();
+        RemoveLineRenderer();     
+    }
     public void ClearLabelHighlights()
     {
         foreach (var highlightedObject in highlightedLabels)
@@ -171,7 +181,10 @@ public class ObjectHighlighter : MonoBehaviour
 
     public void RemoveLineRenderer()
     {
-        if (lineRenderer != null) { Destroy(lineRenderer.gameObject); };
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Highlight"))
+        {
+            Destroy(obj);
+        }
         isLineRendererActive = false;
     }
 }

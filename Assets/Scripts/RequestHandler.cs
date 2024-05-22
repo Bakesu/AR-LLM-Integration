@@ -73,17 +73,18 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     {
         yield return new WaitForSeconds(1);
 
-        defaultTextSystemPrompt = @"You will be asked to help identify, locate, describe objects or give general information from a provided image. 
+        defaultTextSystemPrompt = @"You will be asked to help identify, locate, describe objects and give general information from a provided image. Your task is to help the user in assembling components for a motherboard.
+        When answering a prompt, try to be as specific as possible in your instructions. When analysing images, focus on components that are relevant to the user's inquiry.
         Only answer with 40 words";
 
-        labelSystemPrompt = @"You will be asked to help identify, locate or describe objects in provided images by using labels on the image, 
-        which will be detailed further now. The image will contain labels in a 8x5 grid ranging from A1 to E8. Each row begins with a letter. 
-        These letters, from top to bottom, range from 'A' to 'E' in alphabetical order. Additionally, each column ends with a number. 
-        These numbers, from left to right, range from '1' to '8' in numerical order. The labels are written in bold red letters and numbers 
-        and encased in a blue square. If you consider the requested area as clipping between multiple labels or covers multiple labels please
-        provide at MAX the four closest labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
-        and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, 
-        after the curly brackets, please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
+        //labelSystemPrompt = @"You will be asked to help identify, locate or describe objects in provided images by using labels on the image, 
+        //which will be detailed further now. The image will contain labels in a 8x5 grid ranging from A1 to E8. Each row begins with a letter. 
+        //These letters, from top to bottom, range from 'A' to 'E' in alphabetical order. Additionally, each column ends with a number. 
+        //These numbers, from left to right, range from '1' to '8' in numerical order. The labels are written in bold red letters and numbers 
+        //and encased in a blue square. If you consider the requested area as clipping between multiple labels or covers multiple labels please
+        //provide at MAX the four closest labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
+        //and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, 
+        //after the curly brackets, please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
 
         functionSystemPrompt = @"The next line in square brackets is to be interpreted as a dictionary containing keys and values."
         + DataUtility.CreateComponentList(objectHighlighter.imageTargets) +
@@ -97,7 +98,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         //Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous.";
 
         messageList.Add(new ReqMessage("system", new List<IContent> { new TextContent(functionSystemPrompt) }));
-        Debug.Log("Ready");        
+        Debug.Log("System is ready");        
     }
 
     internal void CreateFunctionCallRequest(string textPrompt)

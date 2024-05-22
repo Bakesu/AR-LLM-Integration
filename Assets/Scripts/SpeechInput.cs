@@ -78,8 +78,9 @@ public class SpeechInput : MonoBehaviour
 
         dictationResult = args.Result + "?";
         dictationSubsystem.StopDictation();
-        Debug.Log("Sending prompt:" + "'" + args.Result + "'");
-        requestHandler.CreateFunctionCallRequest(dictationResult);
+        speechOutput.OnSpeak("Sending prompt");
+        //Debug.Log("Sending prompt:" + "'" + args.Result + "'");
+        imageCapture.CaptureImageAndSendIt();
         //StartCoroutine(SwitchToKeywordRecognition());
 
         //If photocapture is set, we want to pull it down before creating a new one
@@ -116,8 +117,8 @@ public class SpeechInput : MonoBehaviour
         debugWindow.Clear();
 
         speechOutput.OnDictation();
-        dictationSubsystem.Start();
         dictationSubsystem.StartDictation();
+        dictationSubsystem.Start();
 
         //HardCodedPrompt();
     }
@@ -127,6 +128,7 @@ public class SpeechInput : MonoBehaviour
         StartCoroutine(objectHighlighter.ClearAllHighlights());
         var hardcodedPrompt = "Where should the CPU be placed on the Motherboard?";
         dictationResult = hardcodedPrompt;
-        requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
+        promptAnswerText.text = "Sending prompt: '" + hardcodedPrompt + "'";
+        imageCapture.CaptureImageAndSendIt();
     }
 }
