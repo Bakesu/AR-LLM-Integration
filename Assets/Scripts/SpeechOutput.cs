@@ -42,8 +42,8 @@ public class SpeechOutput : MonoBehaviour
     public void ReloadSceneAndTextToSpeech(string recievedText)
     {
         PlayerPrefs.SetString("texttospeech", recievedText);
-        VuforiaApplication.Instance.Initialize();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        VuforiaApplication.Instance.Initialize();
     }
 
     public void OnSpeak(string text)

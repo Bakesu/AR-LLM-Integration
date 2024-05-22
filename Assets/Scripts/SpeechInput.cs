@@ -80,7 +80,7 @@ public class SpeechInput : MonoBehaviour
         dictationSubsystem.StopDictation();
         speechOutput.OnSpeak("Sending prompt");
         //Debug.Log("Sending prompt:" + "'" + args.Result + "'");
-        imageCapture.CaptureImageAndSendIt();
+        StartCoroutine(imageCapture.CaptureImageAndSendIt());
         //StartCoroutine(SwitchToKeywordRecognition());
 
         //If photocapture is set, we want to pull it down before creating a new one
@@ -116,9 +116,9 @@ public class SpeechInput : MonoBehaviour
         StopAllCoroutines();
         debugWindow.Clear();
 
-        speechOutput.OnDictation();
         dictationSubsystem.StartDictation();
-        dictationSubsystem.Start();
+        speechOutput.OnDictation();
+        //dictationSubsystem.Start();
 
         //HardCodedPrompt();
     }
