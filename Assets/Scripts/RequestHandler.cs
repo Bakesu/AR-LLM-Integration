@@ -43,7 +43,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     private RequestDTO chatAndImageReqDTO;
 
     internal string chatGptChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
-    internal string APIKey = "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";
+    internal string APIKey = "api-key";
 
     string defaultTextSystemPrompt;
     string labelSystemPrompt;
@@ -317,33 +317,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         {
             return true;
         }
-    }
-
-    //internal IEnumerator PromptRequest(string url, string json)
-    //{
-
-    //    var uwr = new UnityWebRequest(url, "POST");
-    //    byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
-    //    uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
-    //    uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-    //    uwr.SetRequestHeader("Content-Type", "application/json");
-    //    uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
-
-    //    //Send the request then wait here until it returns
-    //    yield return uwr.SendWebRequest();
-
-    //    if (uwr.result == UnityWebRequest.Result.ConnectionError)
-    //    {
-
-    //        Debug.Log("Error While Sending: " + uwr.error);
-    //    }
-    //    else
-    //    {
-    //        var text = uwr.downloadHandler.text;
-    //        ChatResDTO chatDTO = JsonConvert.DeserializeObject<ChatResDTO>(text);
-    //        //messageList.Add(chatDTO.choices[0].message);
-    //        textMesh.text = chatDTO.choices[0].message.content;
-    //    }
-    //}    
+    }  
 }
 
