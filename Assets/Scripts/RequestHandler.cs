@@ -9,14 +9,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using Chat;
-using MixedReality.Toolkit.Subsystems;
 using ChatAndImage;
-
-using MixedReality.Toolkit;
-using System.Linq;
-using System.Runtime.InteropServices;
-using UnityEditor;
 using Tool = Chat.Tool;
+using Vuforia;
+using UnityEngine.SceneManagement;
 
 public class RequestHandler : MonoBehaviour, MessageInterface
 {
@@ -33,7 +29,15 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     [SerializeField]
     private FunctionCallHandler functionCallHandler;
 
+    [SerializeField]
+    private SpeechOutput speechOutput;
+
+    [SerializeField]
+    private ImageCapture imageCapture;
+
+
     private float temperature = 0.1f;
+    private int maxTokens = 50;
     private static object[] tools;
 
     private DebugWindow debugWindow;
@@ -62,7 +66,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             return true; // Always accept
         };
         CreateTools();
-        StartCoroutine(SetupGPT());
+        StartCoroutine(SetupGPT());        
     }
 
     private IEnumerator SetupGPT()
@@ -77,7 +81,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         These letters, from top to bottom, range from 'A' to 'E' in alphabetical order. Additionally, each column ends with a number. 
         These numbers, from left to right, range from '1' to '8' in numerical order. The labels are written in bold red letters and numbers 
         and encased in a blue square. If you consider the requested area as clipping between multiple labels or covers multiple labels please
-        provide all those labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
+        provide at MAX the four closest labels. Your answer should be twofold. For the first section, please begin your answer with the label(s) of the grid cell
         and wrap the label(s) in curly brackets. If there are multiple labels, insert a comma between each label. For the second section, 
         after the curly brackets, please answer the questions using a maximum of 30 words and without mentioning the grid or labels.";
 
@@ -105,13 +109,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
     internal void CreateImageRequest(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
     {
         byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes, isWithLabels);
-        StartCoroutine(CreateGPTRequest(requestBody));        
-    }
-
-    internal IEnumerator CreateRecursiveImageRequest(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
-    {
-        byte[] requestBody = CreateImageRequestBody(textPrompt, imageAsBytes, isWithLabels);
-        yield return CreateGPTRequest(requestBody);
+        StartCoroutine(CreateGPTRequest(requestBody));
     }
 
     private byte[] CreateImageRequestBody(string textPrompt, byte[] imageAsBytes, bool isWithLabels)
@@ -132,9 +130,9 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         };
         //TODO: figure out what to do with image requests in messageList - image requests would break requests from the other type of body
         messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", 50, temperature, messageList);
+        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", maxTokens, temperature, messageList);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
-        Debug.Log(requestBodyAsJSONString);
+        //Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
 
@@ -147,22 +145,21 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             new TextContent(textPrompt)
         };
         messageList.Add(new ReqMessage("user", contentList));
-        chatAndImageReqDTO = new RequestDTO("gpt-4-turbo-preview", 50, temperature, messageList, tools);
+        chatAndImageReqDTO = new RequestDTO("gpt-4-vision-preview", maxTokens, temperature, messageList, tools);
         var requestBodyAsJSONString = JsonConvert.SerializeObject(chatAndImageReqDTO);
-        Debug.Log(requestBodyAsJSONString);
+        //Debug.Log(requestBodyAsJSONString);
         return new System.Text.UTF8Encoding().GetBytes(requestBodyAsJSONString);
     }
 
     internal IEnumerator CreateGPTRequest(byte[] requestBody)
     {
         var uwr = new UnityWebRequest(chatGptChatCompletionsUrl, "POST");
-        uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(requestBody);
-        uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        uwr.uploadHandler = (UploadHandler) new UploadHandlerRaw(requestBody);
+        uwr.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
         uwr.SetRequestHeader("Authorization", "Bearer " + APIKey);
         //Send the request then wait here until it returns
         yield return uwr.SendWebRequest();
-
         if (uwr.result == UnityWebRequest.Result.ConnectionError)
         {
             Debug.Log("Error While Sending: " + uwr.error);
@@ -170,13 +167,13 @@ public class RequestHandler : MonoBehaviour, MessageInterface
         else
         {
             string result = uwr.downloadHandler.text;
-            Debug.Log(result);
+            //Debug.Log(result);
             ChatResDTO resultAsObject = JsonConvert.DeserializeObject<ChatResDTO>(result);
-            HandleGPTResponse(resultAsObject);
+            StartCoroutine(HandleGPTResponse(resultAsObject));
         }
     }
 
-    private void HandleGPTResponse(ChatResDTO result)
+    private IEnumerator HandleGPTResponse(ChatResDTO result)
     {
         Message message = result.choices[0].message;
         string finishedReason = result.choices[0].finish_reason;
@@ -187,6 +184,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 List<Tool> callList = message.tool_calls;
                 foreach (var toolCall in callList)
                 {
+                    //Debug.Log("tool call + " + toolCall.function.name);
                     functionCallHandler.GetType().GetMethod(toolCall.function.name).Invoke(functionCallHandler, new object[] { toolCall.function.arguments });
                 }
             }
@@ -196,17 +194,27 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             bool isLabelResponse = DataUtility.IsLabelResponse(message.content);
             if (isLabelResponse)
             {
+                //Debug.Log("is label response");
                 ExtractedLabelData extractedLabelData = DataUtility.extractDataFromResponse(message.content);
                 functionCallHandler.HighlightLabels(extractedLabelData);
                 messageList.Add(new Message("assistant", extractedLabelData.TextContent));
             }
             else
             {
-                promptAnswerText.text = message.content;
+                //TODO: This might have to change
+                //Debug.Log("image prompt text to speech");
+                speechOutput.ReloadSceneAndTextToSpeech(message.content);                
                 messageList.Add(new Message("assistant", message.content));
-            }
 
+                if (imageCapture.photoCaptureObject != null)
+                {
+                    Debug.Log("Disposing of old photoCaptureObject");
+                    imageCapture.photoCaptureObject.Dispose();
+                    imageCapture.photoCaptureObject = null;
+                }                
+            }            
         }
+        yield return "done";
     }
 
     static object[] CreateTools()
@@ -218,7 +226,7 @@ public class RequestHandler : MonoBehaviour, MessageInterface
                 function = new
                 {
                     name = "HighlightObjects",
-                    description =  "Highlight the objects that the user mentions in their prompt",
+                    description =  "Highlight the objects that the user mentions in their prompt. Should be called to help locate objects",
                     parameters = new {
                         type = "object",
                         properties = new {
@@ -318,5 +326,6 @@ public class RequestHandler : MonoBehaviour, MessageInterface
             return true;
         }
     }  
+    } 
 }
 

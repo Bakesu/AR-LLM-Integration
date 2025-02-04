@@ -1,7 +1,7 @@
 Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\x64\lib_burst_generated
 --platform=UWP
 --backend=burst-llvm-15
---target=AVX2
+--target=X64_SSE2
 --global-safety-checks-setting=Off
 --meta-data-generation=False
 --dump=Function
@@ -10,6 +10,7 @@ Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\x64\lib_bur
 --assembly-defines=Assembly-CSharp;
 --assembly-defines=Microsoft.MixedReality.GraphicsTools;
 --assembly-defines=Microsoft.MixedReality.OpenXR;
+--assembly-defines=Microsoft.MixedReality.VisualProfiler;
 --assembly-defines=MixedReality.Toolkit.Accessibility;
 --assembly-defines=MixedReality.Toolkit.Core;
 --assembly-defines=MixedReality.Toolkit.Diagnostics;
@@ -117,7 +118,7 @@ Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\x64\lib_bur
 --method=UnityEngine.XR.Interaction.Toolkit.Transformers.XRSocketGrabTransformer, Unity.XR.Interaction.Toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null::FastComputeNewTrackedPose(Unity.Mathematics.float3&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Mathematics.quaternion&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Mathematics.float3&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Mathematics.quaternion&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Mathematics.quaternion&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Mathematics.float3&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Mathematics.quaternion&, Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null)--d25cb729a424e7fa5ef9105d2c698524
 --platform=UWP
 --backend=burst-llvm-15
---target=X64_SSE2
+--target=AVX2
 --global-safety-checks-setting=Off
 --meta-data-generation=False
 --dump=Function
@@ -126,6 +127,7 @@ Library: D:\Projects\uni\AR-LLM-Integration\Temp\BurstOutput\Plugins\x64\lib_bur
 --assembly-defines=Assembly-CSharp;
 --assembly-defines=Microsoft.MixedReality.GraphicsTools;
 --assembly-defines=Microsoft.MixedReality.OpenXR;
+--assembly-defines=Microsoft.MixedReality.VisualProfiler;
 --assembly-defines=MixedReality.Toolkit.Accessibility;
 --assembly-defines=MixedReality.Toolkit.Core;
 --assembly-defines=MixedReality.Toolkit.Diagnostics;

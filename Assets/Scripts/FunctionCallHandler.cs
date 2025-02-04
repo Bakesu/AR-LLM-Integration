@@ -1,12 +1,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
-using Unity.XR.CoreUtils;
 using UnityEngine;
-using static Microsoft.MixedReality.GraphicsTools.Editor.MeasureToolSettings;
+using Vuforia;
 
 
 public class FunctionCallHandler : MonoBehaviour
@@ -21,17 +19,28 @@ public class FunctionCallHandler : MonoBehaviour
     private RequestHandler requestHandler;
 
     [SerializeField]
+    private SpeechOutput speechOutput;
+    [SerializeField]
     internal Texture2D hardcodedImage;
 
     [SerializeField]
     TextMeshProUGUI promptAnswerText;
-    private bool imageRequestIsRunning = false;
+    // this flag is used in coroutine image requests to make sure everything is finished before showing to the user
+    internal byte[] imageAsPNG;
+    private List<string> labelList;
+
+    private void Start()
+    {
+        imageAsPNG = hardcodedImage.EncodeToPNG();
+    }
 
     internal void HighlightLabels(ExtractedLabelData extractedLabelData)
     {
         objectHighlighter.HighlightLabels(extractedLabelData.Label);
         Debug.Log("label: " + String.Join(", ", extractedLabelData.Label) + " + TextContent: " + extractedLabelData.TextContent);
-        promptAnswerText.text = extractedLabelData.TextContent;
+        //promptAnswerText.text = extractedLabelData.TextContent;
+        //labelList = extractedLabelData.Label;
+        speechOutput.OnSpeak(extractedLabelData.TextContent);
     }
 
     public void HighlightObjects(string componentName)
@@ -53,37 +62,33 @@ public class FunctionCallHandler : MonoBehaviour
     public void TextualAnswer(string FCArgument)
     {
         var answer = DataUtility.ExtractFunctionArgumentsFromFCString(FCArgument);
-        promptAnswerText.text = answer;
+        speechOutput.OnSpeak(answer);
+        //promptAnswerText.text = answer;
     }
 
     public void CaptureImage(string FCArgument)
     {
-        Debug.Log("CaptureImage was called: ");
-        imageCapture.CaptureImageAndSendIt();
+        Debug.Log("CaptureImage called");        
+        StartCoroutine(imageCapture.CaptureImageAndSendIt());
         //TODO: test on headset
     }
 
     public void GiveInstructions(string FCArgument)
-    {        
+    {
         InstructionsObject instructionsObject = JsonConvert.DeserializeObject<InstructionsObject>(FCArgument);       
-        objectHighlighter.HighlightObject(instructionsObject.placeableObject);
-        string labelPrompt = "Please provide the labels for the following object: " + instructionsObject.assemblingObject;
-        var imageAsPNG = hardcodedImage.EncodeToPNG();        
-        var labels = GetInstructionObjectLabel(labelPrompt, imageAsPNG);
-        while (imageRequestIsRunning)
-        {
-            
-        }
-        Debug.Log("task done " + labels);
-        //instructionsObject.placeableObject
-        Debug.Log("assemblingObject = " + instructionsObject.assemblingObject + "placeableObject = " + instructionsObject.placeableObject);        
+              
+        StartCoroutine(DrawRelation(instructionsObject.assemblingObject, instructionsObject.placeableObject));
     }
 
-    public string GetInstructionObjectLabel(string labelPrompt, byte[] imageAsPNG)
+    public IEnumerator DrawRelation(string subject, string placeableObject)
     {
-        imageRequestIsRunning = true;
+        string labelPrompt = "Please provide the labels for the following object: " + subject;
         requestHandler.CreateImageRequest(labelPrompt, imageAsPNG, true);
-        return "done";
-        
+
+        yield return new WaitForSeconds(4);
+        //Highlight objects, relevant labels and create an arrow between them - createimagerequest makes the call to highlight labels
+        //TODO - How do we get the labels and use them for the arrow?
+        objectHighlighter.CreateArrowObject(subject, placeableObject);        
+        objectHighlighter.HighlightObject(placeableObject);
     }
 }

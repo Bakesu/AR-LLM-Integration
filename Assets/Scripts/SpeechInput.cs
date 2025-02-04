@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using UnityEngine.UIElements;
 using Unity.VisualScripting;
 using UnityEngine.Assertions.Must;
+using TMPro;
 
 public class SpeechInput : MonoBehaviour
 {
@@ -23,14 +24,20 @@ public class SpeechInput : MonoBehaviour
     ObjectHighlighter objectHighlighter;
 
     [SerializeField]
+    SpeechOutput speechOutput;
+
+    [SerializeField]
     GameObject promptButton;
+
+    [SerializeField]
+    TextMeshProUGUI promptAnswerText;
 
     [SerializeField]
     Texture2D hardcodedImage;
 
     ImageCapture imageCapture;
 
-    internal String dictationResult;
+    internal string dictationResult;
 
     private int i = 0;
     void Start()
@@ -39,8 +46,8 @@ public class SpeechInput : MonoBehaviour
 
         // Get the first running dictation subsystem.
         dictationSubsystem = XRSubsystemHelpers.GetFirstRunningSubsystem<DictationSubsystem>();
+        dictationSubsystem.Start();
 
-        // If we found one...
         if (dictationSubsystem != null)
         {
             // Add event handlers to all dictation subsystem events. 
@@ -48,10 +55,9 @@ public class SpeechInput : MonoBehaviour
             dictationSubsystem.Recognized += Dictation_Recognized;
             //dictationSubsystem.RecognitionFinished += Dictation_RecognitionFinished;
             dictationSubsystem.RecognitionFaulted += Dictation_RecognitionFaulted;
-
-            // And start dictation
-            //dictationSubsystem.StartDictation();
+            Debug.Log("Dictation system is running = " + dictationSubsystem.running);
         }
+        //dictationSubsystem.Stop();
     }
 
     private void Dictation_RecognitionFaulted(DictationSessionEventArgs args)
@@ -62,27 +68,29 @@ public class SpeechInput : MonoBehaviour
 
     private void Dictation_RecognitionFinished(DictationSessionEventArgs args)
     {
-        throw new NotImplementedException();
+        Debug.Log("Dictation finished");
     }
 
     private void Dictation_Recognized(DictationResultEventArgs args)
     {
+        StartCoroutine(objectHighlighter.ClearAllHighlights());
         debugWindow.Clear();
-        dictationResult = args.Result;
-        Debug.Log("Sending prompt:" + "'" + dictationResult + "'");
+
+        dictationResult = args.Result + "?";
         dictationSubsystem.StopDictation();
+        Debug.Log("Sending prompt:" + "'" + args.Result + "'");
+        requestHandler.CreateFunctionCallRequest(dictationResult);
+        //StartCoroutine(SwitchToKeywordRecognition());
+
         //If photocapture is set, we want to pull it down before creating a new one
-        if(imageCapture.photoCaptureObject != null)
-        {
-            Debug.Log("Disposing of old photoCaptureObject");
-            imageCapture.photoCaptureObject.Dispose();
-            imageCapture.photoCaptureObject = null;
-        }
-        var imageAsPNG = hardcodedImage.EncodeToPNG();
-        requestHandler.CreateImageRequest(dictationResult, imageAsPNG, true);
-        
-        //imageCapture.CaptureImageAndSendIt();        
+        //if (imageCapture.photoCaptureObject != null)
+        //{
+        //    Debug.Log("Disposing of old photoCaptureObject");
+        //    imageCapture.photoCaptureObject.Dispose();
+        //    imageCapture.photoCaptureObject = null;
+        //}
     }
+
 
     private void Dictation_Recognizing(DictationResultEventArgs args)
     {
@@ -90,13 +98,13 @@ public class SpeechInput : MonoBehaviour
         switch (i)
         {
             case 1:
-                Debug.Log("Recognizing");
+                promptAnswerText.text = "Recognizing";
                 break;
             case 2:
-                Debug.Log("Recognizing.");
+                promptAnswerText.text = "Recognizing.";
                 break;
             case 3:
-                Debug.Log("Recognizing..");
+                promptAnswerText.text = "Recognizing..";
                 i = 0;
                 break;
         }
@@ -104,19 +112,21 @@ public class SpeechInput : MonoBehaviour
 
     public void StartDictation()
     {
-        //objectHighlighter.ClearLabelHighlights();
-        //dictationSubsystem.StartDictation();
-        //Debug.Log("Start Dictating!");
-
-        //Clear all highlights and prompt text
+        StopAllCoroutines();
         debugWindow.Clear();
-        objectHighlighter.ClearAllHighlights();
 
-        var imageAsPNG = hardcodedImage.EncodeToPNG();
-        var hardcodedPrompt = "What should the CPU be placed on the motherboard?";
+        speechOutput.OnDictation();
+        dictationSubsystem.Start();
+        dictationSubsystem.StartDictation();
+
+        //HardCodedPrompt();
+    }
+
+    private void HardCodedPrompt()
+    {
+        StartCoroutine(objectHighlighter.ClearAllHighlights());
+        var hardcodedPrompt = "Where should the CPU be placed on the Motherboard?";
         dictationResult = hardcodedPrompt;
         requestHandler.CreateFunctionCallRequest(hardcodedPrompt);
     }
-
-
 }

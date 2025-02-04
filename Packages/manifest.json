@@ -1,22 +1,24 @@
 {
-    "scopedRegistries": [
-        {
-            "name": "OpenUPM",
-            "url": "https://package.openupm.com",
-            "scopes": [
-                "com.atteneder"
-            ]
-        }
-    ],
-    "dependencies": {
-    "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-10.21.3.tgz",
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.atteneder"
+      ]
+    }
+  ],
+  "dependencies": {
     "com.atteneder.gltfast": "6.2.0",
     "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.10.0.tgz",
+    "com.microsoft.mixedreality.visualprofiler": "https://github.com/microsoft/VisualProfiler-Unity.git?path=/com.microsoft.mixedreality.visualprofiler",
     "com.microsoft.mrtk.graphicstools.unity": "file:MixedReality/com.microsoft.mrtk.graphicstools.unity-0.6.7.tgz",
     "com.microsoft.mrtk.tts.windows": "file:MixedReality/com.microsoft.mrtk.tts.windows-1.0.1.tgz",
     "com.microsoft.spatialaudio.spatializer.unity": "file:MixedReality/com.microsoft.spatialaudio.spatializer.unity-2.0.37.tgz",
+    "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-10.21.3.tgz",
     "com.unity.collab-proxy": "2.0.7",
     "com.unity.feature.development": "1.0.1",
+    "com.unity.memoryprofiler": "1.1.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.textmeshpro": "3.0.8",
     "com.unity.timeline": "1.7.6",
